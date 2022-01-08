@@ -17,4 +17,14 @@ module.exports = class PlayerManager extends Manager {
     return this._repo.getAll();
   }
 
+  getPlayer(playerId)
+  {
+    return this._repo.get(playerId);
+  }
+
+  hasPlayer(playerId)
+  {
+    return this._repo.has(playerId);
+  }
+
 }

@@ -1,10 +1,13 @@
-const { expect } = require('chai');
+const { assert } = require('chai');
 const { describe, it } = require('mocha');
 
-const runThisTest = false;
+const Game = require('../../src/Game');
+const GameFactory = require('../../src/GameFactory');
+
+
+const runThisTest = true;
 
 if(runThisTest) {
-  const GameFactory = require('../../src/GameFactory');
 
   const log = (item) => {
     console.log(JSON.stringify(item, null, 2))
@@ -13,24 +16,24 @@ if(runThisTest) {
 
     const gameFactory = new GameFactory();
     const game = gameFactory.buildGame();
+    game.setSeed('test');
+    game.setScenario(Game.SCENARIO_DEFAULT);
 
     const player1 = game.addPlayer();
     const player2 = game.addPlayer();
 
-    const players = game.getAllPlayers();
-    //console.log(players);
-    //console.log(game.canStart());
-
     if(game.canStart()) {
-
       game.start();
       //console.log(JSON.stringify(game.serialize(), null, 2));
 
-      /*
-      const deck = game.makeNewDeck();
-      deck.shuffle();
-      //*/
+      const deck = game.getDeck();
+      console.log(deck.getAllCardIds());
 
+      /*
+      if(game.isPlayerTurn(player)){
+        const card = game.drawCardFromDeck();
+      }
+      */
     }
 
     /*

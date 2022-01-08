@@ -1,4 +1,4 @@
-module.exports = class Repository {
+module.exports = class AutoIncRamRepository {
   constructor()
   {
     this.reset();

@@ -1,38 +1,54 @@
-const Manager = require('../base/Manager');
 const CardFactory = require('./CardFactory');
+const Card = require('./Card');
 
-module.exports = class CardManager extends Manager {
+const AutoIncRamRepository = require('../base/AutoIncRamRepository');
+const PropertySet = require('./PropertySet');
+
+
+module.exports = class CardManager  {
 
   static SCENARIO_CASH_ONLY = 'cashOnly';
+  static SCENARIO_DEFAULT = 'default';
 
   constructor()
   {
-    super();
+    this.reset();
+  }
+
+  reset()
+  {
+    this._cards = new AutoIncRamRepository();
+    this._propertySets = new Map();
   }
 
   setup(type=null)
   {
-    this._repo.reset();
+    this._cards.reset();
     switch(type)
     {
-      default:
-      case this.SCENARIO_CASH_ONLY:
+      case CardManager.SCENARIO_CASH_ONLY:
         this._factory = new CardFactory();
-        this._generateCards(this._getCashOnlyCardCounts());
+        this._generateCards(this._getCardsForScenarioCashOnly());
+        break;
+      case CardManager.SCENARIO_DEFAULT:
+      default:
+        this._factory = new CardFactory();
+        this._generatePropertySets(this._getDefaultPropertySets());
+        this._generateCards(this._getCardsForScenarioCashOnly());
     }
   }
 
   getAllCards()
   {
-    return this._repo.getAll();
+    return this._cards.getAll();
   }
 
   getCard(cardId)
   {
-    return this._repo.get(cardId);
+    return this._cards.get(cardId);
   }
 
-  _getCashOnlyCardCounts()
+  _getCardsForScenarioCashOnly()
   {
     const cardCounts = new Map();
 
@@ -52,9 +68,327 @@ module.exports = class CardManager extends Manager {
       for(let i = 0; i < quantity; ++i){
         const card = this._factory.make(cardKey);
         if(card){
-          this._repo.insert(card);
+          this._cards.insert(card);
         }
       }
     })
+  }
+
+  _getDefaultPropertySets()
+  {
+    return {
+      blue: {
+        set: "blue",
+        tags: [],
+        colorCode: "#134bbf",
+        rent: {
+          "1": 3,
+          "2": 8,
+        },
+        cards: [
+          {
+            name: "Penthouse Suite",
+            key: "PROPERTY_BLUE_1",
+            value: 4,
+          },
+          {
+            name: "Lake Side",
+            key: "PROPERTY_BLUE_2",
+            value: 4,
+          },
+        ],
+      },
+      green: {
+        set: "green",
+        tags: [],
+        colorCode: "#049004",
+        rent: {
+          "1": 2,
+          "2": 4,
+          "3": 7,
+        },
+        cards: [
+          {
+            name: "National Park",
+            key: "PROPERTY_GREEN_1",
+            value: 4,
+          },
+          {
+            name: "North of Nowhere",
+            key: "PROPERTY_GREEN_2",
+            value: 4,
+          },
+          {
+            name: "The Booneys",
+            key: "PROPERTY_GREEN_3",
+            value: 4,
+          },
+        ],
+      },
+      yellow: {
+        set: "yellow",
+        tags: [],
+        colorCode: "#e8c700",
+        rent: {
+          "1": 2,
+          "2": 4,
+          "3": 6,
+        },
+        cards: [
+          {
+            name: "College Dorms",
+            key: "PROPERTY_YELLOW_1",
+            value: 3,
+          },
+          {
+            name: "Thrift Shop",
+            key: "PROPERTY_YELLOW_2",
+            value: 3,
+          },
+          {
+            name: "Friend's Couch",
+            key: "PROPERTY_YELLOW_3",
+            value: 3,
+          },
+        ],
+      },
+      red: {
+        set: "red",
+        tags: [],
+        colorCode: "#a50c0c",
+        rent: {
+          "1": 2,
+          "2": 3,
+          "3": 6,
+        },
+        cards: [
+          {
+            name: "Papa Fried Chicken",
+            key: "PROPERTY_RED_1",
+            value: 2,
+          },
+          {
+            name: "McDo",
+            key: "PROPERTY_RED_2",
+            value: 2,
+          },
+          {
+            name: "Pizza Place",
+            key: "PROPERTY_RED_3",
+            value: 2,
+          },
+        ],
+      },
+      orange: {
+        set: "orange",
+        tags: [],
+        colorCode: "#ff7100",
+        rent: {
+          "1": 1,
+          "2": 3,
+          "3": 5,
+        },
+        cards: [
+          {
+            name: "Hill-Billy Hay Stack",
+            key: "PROPERTY_ORANGE_1",
+            value: 2,
+          },
+          {
+            name: "Trailer Park",
+            key: "PROPERTY_ORANGE_2",
+            value: 2,
+          },
+          {
+            name: "The local bar",
+            key: "PROPERTY_ORANGE_3",
+            value: 2,
+          },
+        ],
+      },
+      black: {
+        set: "black",
+        cards: [
+          {
+            name: "Metro Lines",
+            key: "PROPERTY_BLACK_1",
+            value: 2,
+          },
+          {
+            name: "Zuber",
+            key: "PROPERTY_BLACK_2",
+            value: 2,
+          },
+          {
+            name: "Taxi Company",
+            key: "PROPERTY_BLACK_3",
+            value: 2,
+          },
+          {
+            name: "Bus Company",
+            key: "PROPERTY_BLACK_4",
+            value: 2,
+          },
+        ],
+        tags: ["transport"],
+        colorCode: "#404040",
+        rent: {
+          "1": 1,
+          "2": 3,
+          "3": 3,
+          "4": 4,
+        },
+      },
+      purple: {
+        set: "purple",
+        tags: [],
+        colorCode: "#940194",
+        rent: {
+          "1": 1,
+          "2": 2,
+          "3": 4,
+        },
+        cards: [
+          {
+            name: "Hair Salon",
+            key: "PROPERTY_PURPLE_1",
+            value: 2,
+          },
+          {
+            name: "Spa",
+            key: "PROPERTY_PURPLE_2",
+            value: 2,
+          },
+          {
+            name: "Yoga",
+            key: "PROPERTY_PURPLE_3",
+            value: 2,
+          },
+        ],
+      },
+      cyan: {
+        set: "cyan",
+        tags: [],
+        colorCode: "#00b3d6",
+        rent: {
+          "1": 1,
+          "2": 2,
+          "3": 3,
+        },
+        cards: [
+          {
+            name: "Water Park",
+            key: "PROPERTY_CYAN_1",
+            value: 1,
+          },
+          {
+            name: "The Local Beach",
+            key: "PROPERTY_CYAN_2",
+            value: 1,
+          },
+          {
+            name: "AquaLand",
+            key: "PROPERTY_CYAN_3",
+            value: 1,
+          },
+        ],
+      },
+      pink: {
+        set: "pink",
+        tags: ["utility"],
+        colorCode: "#d27eae",
+        rent: {
+          "1": 1,
+          "2": 2,
+        },
+        cards: [
+          {
+            name: "Internet provider",
+            key: "PROPERTY_PINK_1",
+            value: 2,
+          },
+          {
+            name: "Streaming Services",
+            key: "PROPERTY_PINK_2",
+            value: 2,
+          },
+        ],
+      },
+      brown: {
+        set: "brown",
+        tags: [],
+        colorCode: "#824b00",
+        rent: {
+          "1": 1,
+          "2": 2,
+        },
+        cards: [
+          {
+            name: "Cardboard Box",
+            key: "PROPERTY_BROWN_1",
+            value: 1,
+          },
+          {
+            name: "Trash bin",
+            key: "PROPERTY_BROWN_2",
+            value: 1,
+          },
+        ],
+      },
+    };
+  }
+
+  _generatePropertySets(properties)
+  {
+    Object.keys(properties).forEach(code => {
+      const data = properties[code];
+
+      const propertySet = new PropertySet();
+      propertySet.setCode(code);
+      propertySet.setColorCode(data.colorCode);
+      propertySet.addTags(data.tags);
+      Object.keys(data.rent).forEach(cardCount => {
+        const rentValue = data.rent[cardCount];
+        propertySet.setRentValue(cardCount, rentValue);
+      });
+
+
+      // Create property cards for set
+      Object.keys(data.cards).forEach(cardData => {
+        let card =  new Card();
+        card.setType(Card.TYPE_PROPERTY);
+        card.setKey(cardData.key);
+        card.setValue(cardData.value);
+        card.addTags([Card.TAG_PROPERTY, ...data.tags]);
+        card.addComp(Card.COMP_ACTIVE_SET, code);
+
+        this._cards.insert(card);
+      })
+
+      this._propertySets.set(code, propertySet);
+    })
+  }
+
+  _makePropertySet(type=null)
+  {
+    switch(type)
+    {
+      default:
+        const propertySet = new PropertySet();
+        return propertySet;
+    }
+  }
+
+  serialize()
+  {
+    return {
+      cards: this._cards.serialize(),
+    };
+  }
+
+  unserialize(encoded)
+  {
+    const decoded = this.decode(encoded);
+    this._cards.unserialize(decoded.cards);
   }
 }

@@ -1,69 +1,12 @@
 const Model = require('../base/Model');
-
 const TagContainer = require('./TagContainer');
-
-
-class ComponentContainer
-{
-  constructor()
-  {
-    this.reset();
-  }
-
-  reset()
-  {
-    this._items = new Map();
-  }
-
-  add(key, comp)
-  {
-    this._items.set(key, comp);
-  }
-
-  has(key)
-  {
-    return this._items.has(key);
-  }
-
-
-  get(key)
-  {
-    return this._items.get(key);
-  }
-
-  remove(key)
-  {
-    this._items.remove(key);
-  }
-
-  serialize()
-  {
-    const result = {}
-    this._items.forEach((value, key) => {
-      result[key] = value;
-    })
-    return result;
-  }
-
-  unserialzie(data)
-  {
-    this.reset();
-    if(data){
-      Object.keys(data).forEach(key => {
-        let value = data[key];
-        this.add(key, value);
-      })
-    }
-  }
-}
-
+const ComponentContainer = require('./ComponentContainer');
 
 module.exports = class Card extends Model {
 
   static TYPE_ACTION = 'action';
   static TYPE_CASH = 'cash';
   static TYPE_PROPERTY = 'property';
-
 
   static TAG_DRAW = 'draw';
   static TAG_BANKABLE = 'bankable';
@@ -79,12 +22,14 @@ module.exports = class Card extends Model {
   static TAG_SET_AUGMENT = 'setAugment';
   static TAG_HOUSE = 'house';
   static TAG_HOTEL = 'hotel';
+  static TAG_PROPERTY = 'property';
   static TAG_UTILITY = 'utility';
   static TAG_TRANSPORT = 'transport';
 
   static TARGET_ONE = 'one';
   static TARGET_ALL = 'all';
 
+  static COMP_ACTIVE_SET = 'activeSet';
   static COMP_DRAW_CARD = 'drawCard';
   static COMP_RENT = 'rent';
   static COMP_COLLECT_VALUE = 'collectValue';

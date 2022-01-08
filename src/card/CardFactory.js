@@ -295,6 +295,8 @@ module.exports = class CardFactory {
     return null;
   }
 
+  
+
   _makeCashCard(value)
   {
     const card = new Card();
