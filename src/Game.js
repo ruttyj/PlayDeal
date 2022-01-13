@@ -65,7 +65,7 @@ module.exports = class Game {
 
   getPlayerCount()
   {
-    return this._playerManager.getCount();
+    return this._playerManager.getPlayerCount();
   }
 
   canStart()
@@ -90,7 +90,7 @@ module.exports = class Game {
     let cardLoadout; 
     switch(this._scenario)
     {
-      case  this.SCENARIO_CASH_ONLY:
+      case this.SCENARIO_CASH_ONLY:
         cardLoadout = CardManager.SCENARIO_CASH_ONLY;
         break
       case this.SCENARIO_DEFAULT:

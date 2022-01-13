@@ -27,15 +27,25 @@ module.exports = class CardManager  {
     switch(type)
     {
       case CardManager.SCENARIO_CASH_ONLY:
-        this._factory = new CardFactory();
-        this._generateCards(this._getCardsForScenarioCashOnly());
+        this._cashOnlyCards();
         break;
       case CardManager.SCENARIO_DEFAULT:
       default:
-        this._factory = new CardFactory();
-        this._generatePropertySets(this._getDefaultPropertySets());
-        this._generateCards(this._getCardsForScenarioCashOnly());
+        this._defaultCards();
     }
+  }
+
+  _cashOnlyCards()
+  {
+    this._factory = new CardFactory();
+    this._generateCards(this._getCardsForScenarioCashOnly());
+  }
+
+  _defaultCards()
+  {
+    this._factory = new CardFactory();
+    this._generatePropertySets(this._getDefaultPropertySets());
+    this._generateCards(this._getCardsForScenarioCashOnly());
   }
 
   getAllCards()

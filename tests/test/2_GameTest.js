@@ -4,7 +4,6 @@ const { describe, it } = require('mocha');
 const Game = require('../../src/Game');
 const GameFactory = require('../../src/GameFactory');
 
-
 const runThisTest = true;
 
 if(runThisTest) {
@@ -24,10 +23,11 @@ if(runThisTest) {
 
     if(game.canStart()) {
       game.start();
-      //console.log(JSON.stringify(game.serialize(), null, 2));
 
       const deck = game.getDeck();
       console.log(deck.getAllCardIds());
+
+      //console.log(JSON.stringify(game.serialize(), null, 2));
 
       /*
       if(game.isPlayerTurn(player)){

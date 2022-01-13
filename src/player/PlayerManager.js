@@ -1,30 +1,67 @@
-const Manager = require('../base/Manager');
 const Player = require('../player/Player');
-module.exports = class PlayerManager extends Manager {
+const AutoIncRamRepository = require('../base/AutoIncRamRepository');
+const CardContainer = require('../card/CardContainer')
+
+module.exports = class PlayerManager {
   constructor()
   {
-    super();
+    this._players = new AutoIncRamRepository();
+    this._playerCollections = new AutoIncRamRepository();
+    this._playerHands = new Map();
+    this._playerBanks = new Map();
+  }
+
+  setup()
+  {
+    //nope
+  }
+
+  getPlayerCount()
+  {
+    return this._players.count();
   }
 
   addPlayer()
   {
     const newPlayer = new Player();
-    return this._repo.insert(newPlayer);
-  }
-
-  getAll()
-  {
-    return this._repo.getAll();
+    const playerModel = this._players.insert(newPlayer);
+    const playerId = playerModel.getId();
+    this._playerHands.set(playerId, new CardContainer());
+    this._playerBanks.set(playerId, new CardContainer());
+    
+    return playerModel;
   }
 
   getPlayer(playerId)
   {
-    return this._repo.get(playerId);
+    return this._players.get(playerId);
+  }
+
+  getPlayerHand(playerId)
+  {
+    return this._playerHands.get(playerId);
+  }
+
+  removePlayer()
+  {
+    //@TODO
   }
 
   hasPlayer(playerId)
   {
-    return this._repo.has(playerId);
+    return this._players.has(playerId);
+  }
+
+  serialize()
+  {
+    return {
+      players: this._players.serialize(),
+    };
+  }
+
+  unserialize(data)
+  {
+    this._players.unserialize(data.players);
   }
 
 }
