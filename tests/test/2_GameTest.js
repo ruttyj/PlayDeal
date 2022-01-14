@@ -13,6 +13,8 @@ const makeCashOnlyGame = () => {
   game.addPlayer();
   game.addPlayer();
 
+  game.start();
+
   return game;
 }
       
@@ -26,14 +28,8 @@ if(runThisTest) {
     it('Should deal 5 cards each', () => {
       const game = makeCashOnlyGame();
 
-      const player1 = game.getPlayer(1);
-      const player2 = game.getPlayer(2);
-  
-      const player1Id = player1.getId();
-      const player2Id = player2.getId();
-
-      game.start();
-
+      const player1Id = 1;
+      const player2Id = 2;
 
       // deck should be shuffled
       const deck = game.getDeck();
@@ -50,8 +46,6 @@ if(runThisTest) {
       const player2Hand = game.getPlayerHand(player2Id);
       assert.equal(JSON.stringify(player1Hand.serialize()), '[42,19,18,7,28]');
       assert.equal(JSON.stringify(player2Hand.serialize()), '[26,21,44,5,17]');
-    
-    
     })
     
 
@@ -66,20 +60,6 @@ if(runThisTest) {
     const turn = game.getCurrentTurn()
 
     turn.getPerson();
-
-
-    //*/
-
-    /*
-    it('Client 2 disconnects', () => {
-      const c3Log = new Map();
-      
-      const c3People = c3Log.get('room_people_all_keyed');
-
-      client2.emit('disconnect');
-      expect(c3People.items['3'].type).to.equal('host');
-      expect(c3People.order.length).to.equal(1);
-    })
     //*/
   })
 

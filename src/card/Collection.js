@@ -1,0 +1,108 @@
+const CardContainer = require('./CardContainer');
+
+module.exports = class Collection {
+  constructor(playerId, cardManager)
+  {
+    this._cardManager = cardManager;
+    this.reset();
+    this.setPlayerId(playerId);
+  }
+
+  reset()
+  {
+    this._playerId = null;
+    this._cards = new CardContainer(this._cardManager);
+  }
+
+  setPlayerId(playerId)
+  {
+    this._playerId = playerId;
+  }
+
+  getPlayerId()
+  {
+    return this._playerId;
+  }
+
+  addCard(cardOrId)
+  {
+    this._cards.addCard(cardOrId);
+  }
+
+  addCards(cardOrCards)
+  {
+    this._cards.addCards(cardOrCards);
+  }
+
+  hasCard(cardOrId)
+  {
+    return this._cards.hasCard(cardOrId);
+  }
+
+  getCard(cardOrId)
+  {
+    return this._cards.getCard(cardOrId);
+  }
+
+  getAllCardIds()
+  {
+    return this._cards.getAllCardIds();
+  }
+
+  getAllCards()
+  {
+    return this._cards.getAllCards();
+  }
+
+  getCards(cardsOrIds)
+  {
+    return this._cards.getCards(cardsOrIds);
+  }
+
+  cardCount()
+  {
+    return this._cards.count();
+  }
+
+  removeCard(cardOrId)
+  {
+    this._cards.removeCard(cardOrId);
+  }
+
+  giveCard(cardOrId)
+  {
+    return this._cards.giveCard(cardOrId);
+  }
+
+  giveCards(cardsOrIds)
+  {
+    return this._cards.giveCards(cardsOrIds);
+  }
+
+  replaceAllCards(newCards)
+  {
+    this.reset();
+    this._cards.replaceAllCards(newCards);
+  }
+
+  findCard(fn) {
+    return this._cards.findCard(fn);
+  }
+
+  findCards(fn) {
+    return this._cards.findCards(fn);
+  }
+
+  serialize()
+  {
+    return {
+      cards: this._cards.serialize()
+    }
+  }
+
+  unserialize(data)
+  {
+    this.reset();
+    this._cards.unserialize(data.cards);
+  }
+}

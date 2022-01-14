@@ -1,7 +1,8 @@
 const Player = require('../player/Player');
 const AutoIncRepo = require('../base/AutoIncRepo');
 const Repo = require('../base/Repo');
-const CardContainer = require('../card/CardContainer')
+const CardContainer = require('../card/CardContainer');
+const Collection = require('../card/Collection');
 
 module.exports = class PlayerManager {
   constructor(cardManager)
@@ -32,6 +33,15 @@ module.exports = class PlayerManager {
     this._playerBanks.set(playerId, new CardContainer(this._cardManager));
     
     return playerModel;
+  }
+
+  makeNewCollectionForPlayer(playerId)
+  {
+    if(this._players.has(playerId)) {
+      return this._playerCollections.insert(new Collection(playerId, this._cardManager));
+    }
+
+    return null;
   }
 
   getPlayer(playerId)
