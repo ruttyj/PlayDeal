@@ -1,4 +1,4 @@
-module.exports = class AutoIncRamRepository {
+module.exports = class AutoIncRepo {
   constructor()
   {
     this.reset();
@@ -6,7 +6,6 @@ module.exports = class AutoIncRamRepository {
 
   reset()
   {
-    this._topId = 0;
     this._items = new Map();
   }
 
@@ -25,7 +24,6 @@ module.exports = class AutoIncRamRepository {
   serialize()
   {
     let result = {
-      topId: this._topId,
       items: {},
       order: [],
     };
@@ -40,7 +38,6 @@ module.exports = class AutoIncRamRepository {
   {
     // @TODO
     this.reset();
-
   }
 
   _getNewId()
@@ -49,12 +46,9 @@ module.exports = class AutoIncRamRepository {
     return this._topId;
   }
 
-  insert(model)
+  set(id, model)
   {
-    let id = this._getNewId();
-    model.setId(id);
     this.update(id,  model);
-
     return this.get(id);
   }
 

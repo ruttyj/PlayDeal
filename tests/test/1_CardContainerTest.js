@@ -1,11 +1,12 @@
 const { assert } = require('chai');
 const { describe, it } = require('mocha');
 
+const runThisTest = true;
+
 const srcPath = '../../src';
 const CardManager = require(srcPath + '/card/CardManager');
 const CardContainer = require(srcPath + '/card/CardContainer');
 const RandomNumberGen = require(srcPath + '/utils/RandomNumberGen');
-const runThisTest = true;
 
 if(runThisTest) {
 
@@ -21,7 +22,6 @@ if(runThisTest) {
   const makeNewCardContainer = () => {
     return new CardContainer(cardManager);
   }
-
 
   describe("CardContainer", () => {
 

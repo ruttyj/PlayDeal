@@ -1,9 +1,9 @@
-const AutoIncRamRepository = require('./AutoIncRamRepository');
+const AutoIncRepo = require('./AutoIncRepo');
 
 module.exports = class Manager {
   constructor()
   {
-    this._repo = new AutoIncRamRepository();
+    this._repo = new AutoIncRepo();
   }
 
   setup()

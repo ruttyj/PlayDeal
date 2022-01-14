@@ -1,7 +1,7 @@
 const CardFactory = require('./CardFactory');
 const Card = require('./Card');
 
-const AutoIncRamRepository = require('../base/AutoIncRamRepository');
+const AutoIncRepo = require('../base/AutoIncRepo');
 const PropertySet = require('./PropertySet');
 
 
@@ -17,7 +17,7 @@ module.exports = class CardManager  {
 
   reset()
   {
-    this._cards = new AutoIncRamRepository();
+    this._cards = new AutoIncRepo();
     this._propertySets = new Map();
   }
 

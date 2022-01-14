@@ -27,9 +27,13 @@ module.exports = class CardContainer {
   addCard(cardOrId)
   {
     const cardId = this._getId(cardOrId);
-    const card = this._getCard(cardId);
-    if(card){
-      this._items.set(cardId, true);
+    try{
+      const card = this._getCard(cardId);
+      if(card){
+        this._items.set(cardId, true);
+      }
+    } catch {
+      console.log('No card manager defined');
     }
   }
 

@@ -12,12 +12,12 @@ module.exports = class Game {
 
   constructor()
   {
-    this._playerManager = new PlayerManager();
+    this._cardManager = new CardManager();
+    this._playerManager = new PlayerManager(this._cardManager);
 
     this._hasStarted = false;
     this._hasEnded = false;
     this._minPlayerLimit = 2;
-    this._cardManager = new CardManager();
     this._scenario = this.SCENARIO_DEFAULT;
     this._rng = new RandomNumberGen(); // keep random numbers reproducable
     this._deck = new CardContainer(this._cardManager);
@@ -58,6 +58,11 @@ module.exports = class Game {
     return this._playerManager.getPlayer(playerId);
   }
 
+  getPlayerHand(playerId)
+  {
+    return this._playerManager.getPlayerHand(playerId);
+  }
+
   getAllPlayers()
   {
     return this._playerManager.getAll();
@@ -81,8 +86,13 @@ module.exports = class Game {
   start()
   {
     this._hasStarted = true;
+
+    // Init cards
     this._initCardManager();
     this._generateDeck();
+
+    // Give out cards to players
+    this.drawGameStartingCards();
   }
 
   _initCardManager()
@@ -145,12 +155,18 @@ module.exports = class Game {
 
   drawCardForPlayer(playerId)
   {
-    //const playerHand = 
+    const hand = this._playerManager.getPlayerHand(playerId);
+    const card = this.drawCardFromDeck();
+    hand.addCard(card);
   }
 
   drawGameStartingCards()
   {
-    //this._turnStartingCardCount
+    for(let i = 0 ; i < this._turnStartingCardCount; ++i) {
+      this._playerManager.iterate(player => {
+        this.drawCardForPlayer(player.getId());
+      })
+    }
   }
 
   encode(data)
@@ -172,7 +188,7 @@ module.exports = class Game {
       minPlayerLimit: this._minPlayerLimit,
     };
     result.players = this._playerManager.serialize();
-    result.cards = this._cardManager.serialize();
+    //result.cards = this._cardManager.serialize(); // @TODO uncomment
 
     return this.encode(result);
   }
