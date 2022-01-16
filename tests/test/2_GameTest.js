@@ -58,6 +58,7 @@ if(runThisTest) {
       assert.equal(JSON.stringify(player1Hand.getAllCardIds()), '[13,19,4,14,8]');
       assert.equal(JSON.stringify(player2Hand.getAllCardIds()), '[10,2,12,11,20]');
     });
+
     it('Happy Path - Loop through turn phases and player turns', () => {
       const game = makeCashOnlyGame();
       const turnManager = game.getTurnManager();
@@ -109,6 +110,7 @@ if(runThisTest) {
       assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[13,19,4,14,8,3,1]');
       assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
     });
+
     it('Place card in bank from hand', () => {
       const game = makeCashOnlyGame();
       const turnManager = game.getTurnManager();
@@ -196,29 +198,29 @@ if(runThisTest) {
       const collectionA = playerManager.getCollection(1);
       assert.equal(collectionA, null);
     })
+
+    it('Transfer from one collection to a existing collection', () => {
+      const game = makePropertyOnlyGame();
+      const playerManager = game.getPlayerManager();
+  
+      game.dealTurnStartingCards();
+  
+      // Create new collection
+      game.playCardToNewCollectionFromHand(4);
+      game.playCardToExistingCollectonFromHand(3, 1);
+  
+      // Transfer to a new collection
+      game.transferCardToNewCollectionFromCollection(1, 4);
+      game.transferCardToExistingCollectionFromCollection(1, 3, 2);
+  
+      // confirm card transfered
+      const collectionB = playerManager.getCollection(2);
+      assert.equal(JSON.stringify(collectionB.getAllCardIds()), '[4,3]');
+  
+      // confirm old collection deleted
+      const collectionA = playerManager.getCollection(1);
+      assert.equal(collectionA, null);
+    })
+    
   })
-
-  it('Transfer from one collection to a existing collection', () => {
-    const game = makePropertyOnlyGame();
-    const playerManager = game.getPlayerManager();
-
-    game.dealTurnStartingCards();
-
-    // Create new collection
-    game.playCardToNewCollectionFromHand(4);
-    game.playCardToExistingCollectonFromHand(3, 1);
-
-    // Transfer to a new collection
-    game.transferCardToNewCollectionFromCollection(1, 4);
-    game.transferCardToExistingCollectionFromCollection(1, 3, 2);
-
-    // confirm card transfered
-    const collectionB = playerManager.getCollection(2);
-    assert.equal(JSON.stringify(collectionB.getAllCardIds()), '[4,3]');
-
-    // confirm old collection deleted
-    const collectionA = playerManager.getCollection(1);
-    assert.equal(collectionA, null);
-  })
-
 }
