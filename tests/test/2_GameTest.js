@@ -2,8 +2,8 @@ const { assert } = require('chai');
 const { describe, it } = require('mocha');
 
 const Game = require('../../src/Game');
-
-const runThisTest = false;
+const Turn = require('../../src/turn/Turn');
+const runThisTest = true;
 
 const log = (item) => {
   console.log(JSON.stringify(item))
@@ -47,6 +47,64 @@ if(runThisTest) {
       const player2Hand = game.getPlayerHand(player2Id);
       assert.equal(JSON.stringify(player1Hand.serialize()), '[42,19,18,7,28]');
       assert.equal(JSON.stringify(player2Hand.serialize()), '[26,21,44,5,17]');
+    });
+
+    it('Happy Path - Loop through turn phases and player turns', () => {
+      const game = makeCashOnlyGame();
+      const turnManager = game.getTurnManager();
+
+      // Get first player
+      // Cycle through phases
+      if(1) {
+        const turn = turnManager.getTurn();
+        assert.equal(turn.getPlayerId(), 1);
+        assert.equal(turn.getPhase(), Turn.PHASE_DRAW);
+        turn.nextPhase();
+        assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
+        turn.nextPhase();
+        assert.equal(turn.getPhase(), Turn.PHASE_DONE);
+      }
+      
+      // try going to next turn
+      if(1) {
+        turnManager.nextTurn();
+        const turn = turnManager.getTurn();
+        assert.equal(turn.getPlayerId(), 2);
+      }
+
+      // should circle around to the first player
+      if(1) {
+        turnManager.nextTurn();
+        const turn = turnManager.getTurn();
+        assert.equal(turn.getPlayerId(), 1);
+      }
+    });
+
+
+    it('Deal turn starting cards', () => {
+      const game = makeCashOnlyGame();
+      const turnManager = game.getTurnManager();
+
+      // Get first player
+      // Cycle through phases
+      if(1) {
+        const turn = turnManager.getTurn();
+        const playerId = turn.getPlayerId();
+        const playerManager = game.getPlayerManager();
+        const playerHand = playerManager.getPlayerHand(playerId);
+
+        game.dealTurnStartingCards();
+
+        assert.equal(turn.getPlayerId(), 1);
+        assert.equal(JSON.stringify(playerHand.serialize()), '[42,19,18,7,28,37,3]');
+        assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
+
+        // Attempt to be cheekey and draw again
+        game.dealTurnStartingCards();
+        assert.equal(turn.getPlayerId(), 1);
+        assert.equal(JSON.stringify(playerHand.serialize()), '[42,19,18,7,28,37,3]');
+        assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
+      }
     });
 
   })

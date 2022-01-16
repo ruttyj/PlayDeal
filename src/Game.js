@@ -4,6 +4,7 @@ const CardManager = require(srcPath + '/card/CardManager');
 const TurnManager = require(srcPath + '/turn/TurnManager');
 const RandomNumberGen = require(srcPath + '/utils/RandomNumberGen');
 const CardContainer = require(srcPath + '/card/CardContainer');
+const Turn = require(srcPath + '/turn/Turn');
 
 module.exports = class Game {
 
@@ -23,7 +24,8 @@ module.exports = class Game {
 
     this._scenario = this.SCENARIO_DEFAULT;
     this._minPlayerLimit = 2; // min players to start a game
-    this._turnStartingCardCount = 5; // cards given to player at beginning of game
+    this._gameStartingCardCount = 5; // cards given to player at beginning of game
+    this._turnStartingCardCount = 2; // number of cards to be collected on turn start
     this._maxCardsInHand = 7; // max cards in hand at end of turn
 
     this._hasStarted = false;
@@ -109,7 +111,7 @@ module.exports = class Game {
     this._hasStarted = true;
 
     // Give out cards to players
-    this.dealInitialCards();
+    this._dealInitialCards();
 
   }
 
@@ -151,7 +153,7 @@ module.exports = class Game {
     return this._discardPile;
   }
 
-  recycleCards()
+  _recycleCards()
   {
     const activePile = this.getActivePile();
     const discardPile = this.getDiscardPile();
@@ -162,28 +164,39 @@ module.exports = class Game {
     deck.shuffle(this._rng);
   }
 
-  drawCardFromDeck()
+  _drawCardFromDeck()
   {
     const deck = this.getDeck();
     if(deck.count() === 0){
-      this.recycleCards();
+      this._recycleCards();
     }
     return deck.pop();
   }
 
-  drawCardForPlayer(playerId)
+  _drawCardForPlayer(playerId)
   {
     const hand = this._playerManager.getPlayerHand(playerId);
-    const card = this.drawCardFromDeck();
+    const card = this._drawCardFromDeck();
     hand.addCard(card);
   }
 
-  dealInitialCards()
+  _dealInitialCards()
   {
-    for(let i = 0 ; i < this._turnStartingCardCount; ++i) {
+    for(let i = 0 ; i < this._gameStartingCardCount; ++i) {
       this._playerManager.iterate(player => {
-        this.drawCardForPlayer(player.getId());
+        this._drawCardForPlayer(player.getId());
       })
+    }
+  }
+
+  dealTurnStartingCards()
+  {
+    const turn = this._turnManager.getTurn();
+    if(turn.getPhase() === Turn.PHASE_DRAW) {
+      for(let i = 0; i < this._turnStartingCardCount; ++i) {
+        this._drawCardForPlayer(turn.getPlayerId());
+      }
+      turn.nextPhase();
     }
   }
 
@@ -211,6 +224,7 @@ module.exports = class Game {
       minPlayerLimit: this._minPlayerLimit,
     };
     result.players = this._playerManager.serialize();
+    result.turn = this._turnManager.serialize();
     //result.cards = this._cardManager.serialize(); // @TODO uncomment
 
     return this.encode(result);
@@ -225,6 +239,7 @@ module.exports = class Game {
     this._hasEnded = data.hasEnded;
     this._minPlayerLimit = data.minPlayerLimit;
     this._playerManager.unserialzie(data.players);
-    this._cardManager.unserialzie(data.cards);
+    this._turnManager.unserialzie(data.turn);
+    //this._cardManager.unserialzie(data.cards); // @TODO uncomment
   }
 }
