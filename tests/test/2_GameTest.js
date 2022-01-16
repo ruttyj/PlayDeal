@@ -80,31 +80,67 @@ if(runThisTest) {
       }
     });
 
-
     it('Deal turn starting cards', () => {
       const game = makeCashOnlyGame();
       const turnManager = game.getTurnManager();
+      const turn = turnManager.getTurn();
+      const playerId = turn.getPlayerId();
+      const playerManager = game.getPlayerManager();
+      const playerHand = playerManager.getPlayerHand(playerId);
 
-      // Get first player
-      // Cycle through phases
-      if(1) {
-        const turn = turnManager.getTurn();
-        const playerId = turn.getPlayerId();
-        const playerManager = game.getPlayerManager();
-        const playerHand = playerManager.getPlayerHand(playerId);
+      game.dealTurnStartingCards();
 
-        game.dealTurnStartingCards();
+      assert.equal(turn.getPlayerId(), 1);
+      assert.equal(JSON.stringify(playerHand.serialize()), '[42,19,18,7,28,37,3]');
+      assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
 
-        assert.equal(turn.getPlayerId(), 1);
-        assert.equal(JSON.stringify(playerHand.serialize()), '[42,19,18,7,28,37,3]');
-        assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
+      // Attempt to be cheekey and draw again
+      game.dealTurnStartingCards();
+      assert.equal(turn.getPlayerId(), 1);
+      assert.equal(JSON.stringify(playerHand.serialize()), '[42,19,18,7,28,37,3]');
+      assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
+    });
 
-        // Attempt to be cheekey and draw again
-        game.dealTurnStartingCards();
-        assert.equal(turn.getPlayerId(), 1);
-        assert.equal(JSON.stringify(playerHand.serialize()), '[42,19,18,7,28,37,3]');
-        assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
-      }
+    it('Place card in bank from hand', () => {
+      const game = makeCashOnlyGame();
+      const turnManager = game.getTurnManager();
+      const turn = turnManager.getTurn();
+      const playerId = turn.getPlayerId();
+      const playerManager = game.getPlayerManager();
+
+      game.dealTurnStartingCards();
+
+      const playerHand = playerManager.getPlayerHand(playerId);
+      const playerBank = playerManager.getPlayerBank(playerId);
+
+      // Action 1
+      game.putCardInBankFromHand(19);
+      assert.equal(JSON.stringify(playerHand.serialize()), '[42,18,7,28,37,3]');
+      assert.equal(JSON.stringify(playerBank.serialize()), '[19]');
+      assert.equal(turn.getActionCount(), 1);
+      assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
+
+      // Action 2
+      game.putCardInBankFromHand(18);
+      assert.equal(JSON.stringify(playerHand.serialize()), '[42,7,28,37,3]');
+      assert.equal(JSON.stringify(playerBank.serialize()), '[19,18]');
+      assert.equal(turn.getActionCount(), 2);
+      assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
+
+      // Action 3
+      game.putCardInBankFromHand(28);
+      assert.equal(JSON.stringify(playerHand.serialize()), '[42,7,37,3]');
+      assert.equal(JSON.stringify(playerBank.serialize()), '[19,18,28]');
+      assert.equal(turn.getActionCount(), 3);
+      assert.equal(turn.getPhase(), Turn.PHASE_DONE);
+
+      // Attempt to play one more than we have actions for
+      game.putCardInBankFromHand(37);
+      assert.equal(JSON.stringify(playerHand.serialize()), '[42,7,37,3]');
+      assert.equal(JSON.stringify(playerBank.serialize()), '[19,18,28]');
+      assert.equal(turn.getActionCount(), 3);
+      assert.equal(turn.getPlayerId(), 1);
+      assert.equal(turn.getPhase(), Turn.PHASE_DONE);
     });
 
   })

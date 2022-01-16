@@ -200,6 +200,21 @@ module.exports = class Game {
     }
   }
 
+  putCardInBankFromHand(cardId)
+  {
+    const turn = this._turnManager.getTurn();
+    if(turn.isWithinActionLimit()) {
+      const playerId = turn.getPlayerId();
+      const playerManager = this._playerManager;
+      const playerHand = playerManager.getPlayerHand(playerId);
+      const playerBank = playerManager.getPlayerBank(playerId);
+      if(playerHand.hasCard(cardId)) {
+        playerBank.addCard(playerHand.giveCard(cardId));
+        turn.consumeAction();
+      }
+    }
+  }
+
   getMaxCardsInHand()
   {
     return this._maxCardsInHand;

@@ -51,8 +51,16 @@ module.exports = class Turn {
   {
     return this._actionCount;
   }
+  
+  consumeAction()
+  {
+    ++this._actionCount;
+    if(this.getActionCount() === this.getActionLimit()) {
+      this.nextPhase();
+    }
+  }
 
-  _isWithinActionLimit()
+  isWithinActionLimit()
   {
     return this.getActionCount() < this.getActionLimit();
   }
@@ -70,15 +78,14 @@ module.exports = class Turn {
   {
     let currentPhase = this.getPhase();
     if (currentPhase !== Turn.PHASE_DONE) {
-      let goToEnd = false;
+      let goToEnd = true;
       // can still play?
-      if(this._isWithinActionLimit()) {
+      if(this.isWithinActionLimit()) {
         if ([Turn.PHASE_DRAW, Turn.PHASE_REQUEST].includes(currentPhase)) {
           this.setPhase(Turn.PHASE_ACTION);
-        } else {
-          goToEnd = true;
-        }
-      }
+          goToEnd = false;
+        } 
+      } 
 
       if (goToEnd) {
         // should discard?
