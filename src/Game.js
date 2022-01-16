@@ -22,7 +22,7 @@ module.exports = class Game {
     this._activePile = new CardContainer(this._cardManager);
     this._discardPile = new CardContainer(this._cardManager);
 
-    this._scenario = this.SCENARIO_DEFAULT;
+    this._scenario = Game.SCENARIO_DEFAULT;
     this._minPlayerLimit = 2; // min players to start a game
     this._gameStartingCardCount = 5; // cards given to player at beginning of game
     this._turnStartingCardCount = 2; // number of cards to be collected on turn start
