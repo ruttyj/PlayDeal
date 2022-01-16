@@ -21,7 +21,20 @@ const makeCashOnlyGame = () => {
 
   return game;
 }
-      
+ 
+const makePropertyOnlyGame = () => {
+  const game = new Game();
+  game.setSeed('test');
+  game.setScenario(Game.SCENARIO_PROPERTY_ONLY);
+
+  game.addPlayer();
+  game.addPlayer();
+
+  game.start();
+
+  return game;
+}
+
 if(runThisTest) {
 
   describe("PlayDeal Game", () => {
@@ -32,23 +45,19 @@ if(runThisTest) {
       const player1Id = 1;
       const player2Id = 2;
 
-      // deck should be shuffled
+      
       const deck = game.getDeck();
-      const expectedDeckOrder = JSON.stringify([
-        15, 33, 11, 46, 27, 36, 29, 32, 45,  8,
-        34,  9, 40, 30, 48, 43, 24,  4,  2, 14,
-        22, 38, 47, 13, 12, 31, 39, 41,  1, 35,
-        10,  6, 25, 20, 16, 23,  3, 37
-      ]);
+
+      // deck should be shuffled
+      const expectedDeckOrder = JSON.stringify([16,7,9,18,15,5,17,6,1,3]);
       assert.equal(JSON.stringify(deck.getAllCardIds()), expectedDeckOrder);
 
       // Players should have their hands
       const player1Hand = game.getPlayerHand(player1Id);
       const player2Hand = game.getPlayerHand(player2Id);
-      assert.equal(JSON.stringify(player1Hand.getAllCardIds()), '[42,19,18,7,28]');
-      assert.equal(JSON.stringify(player2Hand.getAllCardIds()), '[26,21,44,5,17]');
+      assert.equal(JSON.stringify(player1Hand.getAllCardIds()), '[13,19,4,14,8]');
+      assert.equal(JSON.stringify(player2Hand.getAllCardIds()), '[10,2,12,11,20]');
     });
-
     it('Happy Path - Loop through turn phases and player turns', () => {
       const game = makeCashOnlyGame();
       const turnManager = game.getTurnManager();
@@ -91,16 +100,15 @@ if(runThisTest) {
       game.dealTurnStartingCards();
 
       assert.equal(turn.getPlayerId(), 1);
-      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[42,19,18,7,28,37,3]');
+      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[13,19,4,14,8,3,1]');
       assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
 
       // Attempt to be cheekey and draw again
       game.dealTurnStartingCards();
       assert.equal(turn.getPlayerId(), 1);
-      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[42,19,18,7,28,37,3]');
+      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[13,19,4,14,8,3,1]');
       assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
     });
-
     it('Place card in bank from hand', () => {
       const game = makeCashOnlyGame();
       const turnManager = game.getTurnManager();
@@ -114,35 +122,103 @@ if(runThisTest) {
       const playerBank = playerManager.getPlayerBank(playerId);
 
       // Action 1
-      game.putCardInBankFromHand(19);
-      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[42,18,7,28,37,3]');
+      game.playCardToBankFromHand(19);
+      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[13,4,14,8,3,1]');
       assert.equal(JSON.stringify(playerBank.getAllCardIds()), '[19]');
       assert.equal(turn.getActionCount(), 1);
       assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
 
       // Action 2
-      game.putCardInBankFromHand(18);
-      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[42,7,28,37,3]');
-      assert.equal(JSON.stringify(playerBank.getAllCardIds()), '[19,18]');
+      game.playCardToBankFromHand(13);
+      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[4,14,8,3,1]');
+      assert.equal(JSON.stringify(playerBank.getAllCardIds()), '[19,13]');
       assert.equal(turn.getActionCount(), 2);
       assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
 
       // Action 3
-      game.putCardInBankFromHand(28);
-      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[42,7,37,3]');
-      assert.equal(JSON.stringify(playerBank.getAllCardIds()), '[19,18,28]');
+      game.playCardToBankFromHand(1);
+      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[4,14,8,3]');
+      assert.equal(JSON.stringify(playerBank.getAllCardIds()), '[19,13,1]');
       assert.equal(turn.getActionCount(), 3);
       assert.equal(turn.getPhase(), Turn.PHASE_DONE);
 
       // Attempt to play one more than we have actions for
-      game.putCardInBankFromHand(37);
-      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[42,7,37,3]');
-      assert.equal(JSON.stringify(playerBank.getAllCardIds()), '[19,18,28]');
+      game.playCardToBankFromHand(3);
+      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[4,14,8,3]');
+      assert.equal(JSON.stringify(playerBank.getAllCardIds()), '[19,13,1]');
       assert.equal(turn.getActionCount(), 3);
       assert.equal(turn.getPlayerId(), 1);
       assert.equal(turn.getPhase(), Turn.PHASE_DONE);
     });
 
+    it('Deal property cards add two cards to a new collection', () => {
+      const game = makePropertyOnlyGame();
+      const turnManager = game.getTurnManager();
+      const playerManager = game.getPlayerManager();
+
+      game.dealTurnStartingCards();
+      const turn = turnManager.getTurn();
+      const playerId = turn.getPlayerId();
+      const playerHand = playerManager.getPlayerHand(playerId);
+
+      // Create new collection
+      game.playCardToNewCollectionFromHand(4);
+      const collection = playerManager.getCollection(1);
+      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[25,3,14,22,21,27]');
+      assert.equal(JSON.stringify(collection.getAllCardIds()), '[4]');
+      assert.equal(collection.getPlayerId(), 1);
+
+      // Add to existing collection
+      game.playCardToExistingCollectonFromHand(3, collection.getId());
+      assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[25,14,22,21,27]');
+      assert.equal(JSON.stringify(collection.getAllCardIds()), '[4,3]');
+
+      assert.equal(turn.getActionCount(), 2);
+    })
+
+    it('Transfer from one collection to a new collection', () => {
+      const game = makePropertyOnlyGame();
+      const playerManager = game.getPlayerManager();
+
+      game.dealTurnStartingCards();
+
+      // Create new collection
+      game.playCardToNewCollectionFromHand(4);
+
+      // Transfer to a new collection
+      game.transferCardToNewCollectionFromCollection(1, 4);
+
+      // confirm card transfered
+      const collectionB = playerManager.getCollection(2);
+      assert.equal(JSON.stringify(collectionB.getAllCardIds()), '[4]');
+
+      // confirm old collection deleted
+      const collectionA = playerManager.getCollection(1);
+      assert.equal(collectionA, null);
+    })
+  })
+
+  it('Transfer from one collection to a existing collection', () => {
+    const game = makePropertyOnlyGame();
+    const playerManager = game.getPlayerManager();
+
+    game.dealTurnStartingCards();
+
+    // Create new collection
+    game.playCardToNewCollectionFromHand(4);
+    game.playCardToExistingCollectonFromHand(3, 1);
+
+    // Transfer to a new collection
+    game.transferCardToNewCollectionFromCollection(1, 4);
+    game.transferCardToExistingCollectionFromCollection(1, 3, 2);
+
+    // confirm card transfered
+    const collectionB = playerManager.getCollection(2);
+    assert.equal(JSON.stringify(collectionB.getAllCardIds()), '[4,3]');
+
+    // confirm old collection deleted
+    const collectionA = playerManager.getCollection(1);
+    assert.equal(collectionA, null);
   })
 
 }

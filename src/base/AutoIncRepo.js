@@ -92,7 +92,7 @@ module.exports = class AutoIncRepo {
 
   delete(key)
   {
-    this._items.remove(key);
+    this._items.delete(key);
   }
 
   count()

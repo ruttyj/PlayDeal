@@ -44,6 +44,19 @@ module.exports = class PlayerManager {
     return null;
   }
 
+  getCollection(collectionId)
+  {
+    return this._playerCollections.get(collectionId);
+  }
+
+  deleteCollection(collectionId)
+  {
+    const collection = this.getCollection(collectionId);
+    if(collection.cardCount() === 0) {
+      this._playerCollections.delete(collectionId);
+    }
+  }
+
   getPlayer(playerId)
   {
     return this._players.get(playerId);

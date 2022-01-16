@@ -10,8 +10,19 @@ module.exports = class Collection {
 
   reset()
   {
+    this._id = 0;
     this._playerId = null;
     this._cards = new CardContainer(this._cardManager);
+  }
+
+  setId(id)
+  {
+    this._id = id;
+  }
+
+  getId()
+  {
+    return this._id;
   }
 
   setPlayerId(playerId)

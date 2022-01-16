@@ -9,6 +9,7 @@ const Turn = require(srcPath + '/turn/Turn');
 module.exports = class Game {
 
   static SCENARIO_CASH_ONLY = 'cashOnly';
+  static SCENARIO_PROPERTY_ONLY = 'propertyOnly';
   static SCENARIO_DEFAULT = 'default';
 
   constructor()
@@ -112,18 +113,23 @@ module.exports = class Game {
 
     // Give out cards to players
     this._dealInitialCards();
-
   }
 
   _initCardManager()
   {
-    let cardLoadout; 
+    let cardLoadout;
+
     switch(this._scenario)
     {
-      case this.SCENARIO_CASH_ONLY:
+      case Game.SCENARIO_CASH_ONLY:
         cardLoadout = CardManager.SCENARIO_CASH_ONLY;
         break
-      case this.SCENARIO_DEFAULT:
+
+      case Game.SCENARIO_PROPERTY_ONLY:
+        cardLoadout = CardManager.SCENARIO_PROPERTY_ONLY;
+        break;
+
+      case Game.SCENARIO_DEFAULT:
       default:
         cardLoadout = CardManager.SCENARIO_DEFAULT;
     }
@@ -200,17 +206,101 @@ module.exports = class Game {
     }
   }
 
-  putCardInBankFromHand(cardId)
+  playCardToBankFromHand(cardId)
   {
     const turn = this._turnManager.getTurn();
     if(turn.isWithinActionLimit()) {
-      const playerId = turn.getPlayerId();
       const playerManager = this._playerManager;
+      const playerId = turn.getPlayerId();
       const playerHand = playerManager.getPlayerHand(playerId);
       const playerBank = playerManager.getPlayerBank(playerId);
       if(playerHand.hasCard(cardId)) {
         playerBank.addCard(playerHand.giveCard(cardId));
         turn.consumeAction();
+      }
+    }
+  }
+
+  playCardToNewCollectionFromHand(cardId)
+  {
+    const turn = this._turnManager.getTurn();
+    if(turn.isWithinActionLimit()) {
+      const playerManager = this._playerManager;
+      const playerId = turn.getPlayerId();
+      const playerHand = playerManager.getPlayerHand(playerId);
+
+      if(playerHand.hasCard(cardId)) {
+        const newCollection = playerManager.makeNewCollectionForPlayer(playerId);
+        newCollection.addCard(playerHand.giveCard(cardId));
+        turn.consumeAction();
+      }
+    }
+  }
+
+  playCardToExistingCollectonFromHand(cardId, collectionId)
+  {
+    const turn = this._turnManager.getTurn();
+    if(turn.isWithinActionLimit()) {
+      const playerManager = this._playerManager;
+      const playerId = turn.getPlayerId();
+      const playerHand = playerManager.getPlayerHand(playerId);
+
+      if(playerHand.hasCard(cardId)) {
+        const collection = playerManager.getCollection(collectionId);
+        if(collection && collection.getPlayerId() === playerId) {
+          collection.addCard(playerHand.giveCard(cardId));
+          turn.consumeAction();
+        }
+      }
+    }
+  }
+
+  _cleanUpCollection(collectionId)
+  {
+    const playerManager = this._playerManager;
+    const collection = playerManager.getCollection(collectionId);
+
+    // @TODO check for setAugments move to empty set if nessary
+
+    if(collection.cardCount() === 0) {
+      playerManager.deleteCollection(collectionId);
+    }
+  }
+
+  transferCardToNewCollectionFromCollection(collectionId, cardId)
+  {
+    const playerManager = this._playerManager;
+    const turn = this._turnManager.getTurn();
+    const playerId = turn.getPlayerId();
+
+    const collection = playerManager.getCollection(collectionId);
+    if(collection.hasCard(cardId) && collection.getPlayerId() === playerId) {
+      const newCollection = playerManager.makeNewCollectionForPlayer(playerId);
+      const canAddCardToCollection = true; // @TODO
+
+      if(canAddCardToCollection) {
+        newCollection.addCard(collection.giveCard(cardId));
+        this._cleanUpCollection(collectionId);
+      }
+    }
+  }
+
+  transferCardToExistingCollectionFromCollection(collectionAId, cardId, collectionBId)
+  {
+    const playerManager = this._playerManager;
+    const turn = this._turnManager.getTurn();
+    const playerId = turn.getPlayerId();
+
+    const collectionA = playerManager.getCollection(collectionAId);
+    if(collectionA && collectionA.hasCard(cardId) && collectionA.getPlayerId() === playerId) {
+      const collectionB = playerManager.getCollection(collectionBId);
+
+      if(collectionB.getPlayerId() === playerId) {
+        const canAddCardToCollection = true; // @TODO
+        if(canAddCardToCollection) {
+          collectionB.addCard(collectionA.giveCard(cardId));
+          this._cleanUpCollection(collectionAId);
+        }
       }
     }
   }

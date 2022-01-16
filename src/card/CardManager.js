@@ -8,6 +8,7 @@ const PropertySet = require('./PropertySet');
 module.exports = class CardManager  {
 
   static SCENARIO_CASH_ONLY = 'cashOnly';
+  static SCENARIO_PROPERTY_ONLY = 'propertyOnly';
   static SCENARIO_DEFAULT = 'default';
 
   constructor()
@@ -21,7 +22,7 @@ module.exports = class CardManager  {
     this._propertySets = new Map();
   }
 
-  setup(type=null)
+  setup(type = null)
   {
     this._cards.reset();
     switch(type)
@@ -29,6 +30,11 @@ module.exports = class CardManager  {
       case CardManager.SCENARIO_CASH_ONLY:
         this._cashOnlyCards();
         break;
+
+      case CardManager.SCENARIO_PROPERTY_ONLY:
+        this._propertyOnlyCards();
+        break;
+        
       case CardManager.SCENARIO_DEFAULT:
       default:
         this._defaultCards();
@@ -46,6 +52,11 @@ module.exports = class CardManager  {
     this._factory = new CardFactory();
     this._generatePropertySets(this._getDefaultPropertySets());
     this._generateCards(this._getCardsForScenarioCashOnly());
+  }
+
+  _propertyOnlyCards()
+  {
+    this._generatePropertySets(this._getDefaultPropertySets());
   }
 
   getAllCards()
@@ -364,8 +375,10 @@ module.exports = class CardManager  {
 
 
       // Create property cards for set
-      Object.keys(data.cards).forEach(cardData => {
-        let card =  new Card();
+      Object.keys(data.cards).forEach(cardIndex => {
+        const cardData = data.cards[cardIndex];
+
+        const card =  new Card();
         card.setType(Card.TYPE_PROPERTY);
         card.setKey(cardData.key);
         card.setValue(cardData.value);
