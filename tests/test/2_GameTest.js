@@ -3,7 +3,11 @@ const { describe, it } = require('mocha');
 
 const Game = require('../../src/Game');
 
-const runThisTest = true;
+const runThisTest = false;
+
+const log = (item) => {
+  console.log(JSON.stringify(item))
+}
 
 const makeCashOnlyGame = () => {
   const game = new Game();
@@ -20,12 +24,9 @@ const makeCashOnlyGame = () => {
       
 if(runThisTest) {
 
-  const log = (item) => {
-    console.log(JSON.stringify(item))
-  }
-  describe("testable thing", () => {
+  describe("PlayDeal Game", () => {
 
-    it('Should deal 5 cards each', () => {
+    it('Should deal 5 cards to each player', () => {
       const game = makeCashOnlyGame();
 
       const player1Id = 1;
@@ -46,21 +47,8 @@ if(runThisTest) {
       const player2Hand = game.getPlayerHand(player2Id);
       assert.equal(JSON.stringify(player1Hand.serialize()), '[42,19,18,7,28]');
       assert.equal(JSON.stringify(player2Hand.serialize()), '[26,21,44,5,17]');
-    })
-    
+    });
 
-    /*
-    
-    game.canStart()
-    game.isInProgress()
-    game.hasEnded()
-
-    game.start();
-
-    const turn = game.getCurrentTurn()
-
-    turn.getPerson();
-    //*/
   })
 
 }

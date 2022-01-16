@@ -1,7 +1,7 @@
 const { assert } = require('chai');
 const { describe, it } = require('mocha');
 
-const runThisTest = true;
+const runThisTest = false;
 
 const srcPath = '../../src';
 const CardManager = require(srcPath + '/card/CardManager');

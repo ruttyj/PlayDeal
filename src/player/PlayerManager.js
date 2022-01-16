@@ -59,6 +59,11 @@ module.exports = class PlayerManager {
     return this._playerBanks.get(playerId);
   }
 
+  getAllPlayerIds()
+  {
+    return this._players.getAllKeys();
+  }
+
   removePlayer()
   {
     //@TODO

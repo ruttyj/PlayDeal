@@ -1,7 +1,7 @@
 const srcPath = '../src';
 const PlayerManager = require(srcPath + '/player/PlayerManager');
 const CardManager = require(srcPath + '/card/CardManager');
-const Player = require(srcPath + '/player/Player');
+const TurnManager = require(srcPath + '/turn/TurnManager');
 const RandomNumberGen = require(srcPath + '/utils/RandomNumberGen');
 const CardContainer = require(srcPath + '/card/CardContainer');
 
@@ -14,16 +14,30 @@ module.exports = class Game {
   {
     this._cardManager = new CardManager();
     this._playerManager = new PlayerManager(this._cardManager);
-
-    this._hasStarted = false;
-    this._hasEnded = false;
-    this._minPlayerLimit = 2;
-    this._scenario = this.SCENARIO_DEFAULT;
+    this._turnManager = new TurnManager(this);
     this._rng = new RandomNumberGen(); // keep random numbers reproducable
+
     this._deck = new CardContainer(this._cardManager);
     this._activePile = new CardContainer(this._cardManager);
     this._discardPile = new CardContainer(this._cardManager);
-    this._turnStartingCardCount = 5;
+
+    this._scenario = this.SCENARIO_DEFAULT;
+    this._minPlayerLimit = 2; // min players to start a game
+    this._turnStartingCardCount = 5; // cards given to player at beginning of game
+    this._maxCardsInHand = 7; // max cards in hand at end of turn
+
+    this._hasStarted = false;
+    this._hasEnded = false;
+  }
+
+  getPlayerManager()
+  {
+    return this._playerManager;
+  }
+
+  getTurnManager()
+  {
+    return this._turnManager;
   }
 
   setSeed(seed)
@@ -85,14 +99,18 @@ module.exports = class Game {
 
   start()
   {
-    this._hasStarted = true;
-
-    // Init cards
+    // Setup managers
     this._initCardManager();
+    this._playerManager.setup();
+    this._turnManager.setup();
+
     this._generateDeck();
 
+    this._hasStarted = true;
+
     // Give out cards to players
-    this.drawGameStartingCards();
+    this.dealInitialCards();
+
   }
 
   _initCardManager()
@@ -160,13 +178,18 @@ module.exports = class Game {
     hand.addCard(card);
   }
 
-  drawGameStartingCards()
+  dealInitialCards()
   {
     for(let i = 0 ; i < this._turnStartingCardCount; ++i) {
       this._playerManager.iterate(player => {
         this.drawCardForPlayer(player.getId());
       })
     }
+  }
+
+  getMaxCardsInHand()
+  {
+    return this._maxCardsInHand;
   }
 
   encode(data)
