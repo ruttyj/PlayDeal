@@ -5,6 +5,8 @@ const TurnManager = require(srcPath + '/turn/TurnManager');
 const RandomNumberGen = require(srcPath + '/utils/RandomNumberGen');
 const CardContainer = require(srcPath + '/card/CardContainer');
 const Turn = require(srcPath + '/turn/Turn');
+const Card = require(srcPath + '/card/Card');
+const PropertySet = require(srcPath + '/card/PropertySet');
 
 module.exports = class Game {
 
@@ -232,6 +234,7 @@ module.exports = class Game {
       if(playerHand.hasCard(cardId)) {
         const newCollection = playerManager.makeNewCollectionForPlayer(playerId);
         newCollection.addCard(playerHand.giveCard(cardId));
+        this._updateCollectionWithCard(newCollection.getId(), cardId);
         turn.consumeAction();
       }
     }
@@ -249,6 +252,7 @@ module.exports = class Game {
         const collection = playerManager.getCollection(collectionId);
         if(collection && collection.getPlayerId() === playerId) {
           collection.addCard(playerHand.giveCard(cardId));
+          this._updateCollectionWithCard(collection.getId(), cardId);
           turn.consumeAction();
         }
       }
@@ -267,6 +271,33 @@ module.exports = class Game {
     }
   }
 
+  _canAddCardToCollection(cardId, collectionId)
+  {
+
+  }
+
+  _updateCollectionWithCard(collectionId, cardId)
+  {
+    const playerManager = this._playerManager;
+    const cardManager = this._cardManager;
+
+    const card = cardManager.getCard(cardId);
+
+    const collection = playerManager.getCollection(collectionId);
+    const collectionActiveSet = collection.getActiveSet();
+
+    if(card.hasTag(Card.TAG_PROPERTY)) {
+      // if collection is ambigious or undefined
+      if([null, PropertySet.AMBIGIOUS_SET].includes(collectionActiveSet)) {
+        // get active property set from card
+        const activeSet = card.getMeta(Card.COMP_ACTIVE_SET);
+        if(activeSet) {
+          collection.setActiveSet(activeSet);
+        }
+      }
+    }
+  }
+
   transferCardToNewCollectionFromCollection(collectionId, cardId)
   {
     const playerManager = this._playerManager;
@@ -280,6 +311,7 @@ module.exports = class Game {
 
       if(canAddCardToCollection) {
         newCollection.addCard(collection.giveCard(cardId));
+        this._updateCollectionWithCard(collectionId, cardId);
         this._cleanUpCollection(collectionId);
       }
     }
@@ -299,6 +331,7 @@ module.exports = class Game {
         const canAddCardToCollection = true; // @TODO
         if(canAddCardToCollection) {
           collectionB.addCard(collectionA.giveCard(cardId));
+          this._updateCollectionWithCard(collectionBId, cardId);
           this._cleanUpCollection(collectionAId);
         }
       }

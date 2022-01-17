@@ -169,11 +169,13 @@ if(runThisTest) {
       assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[25,3,14,22,21,27]');
       assert.equal(JSON.stringify(collection.getAllCardIds()), '[4]');
       assert.equal(collection.getPlayerId(), 1);
+      assert.equal(collection.getActiveSet(), 'green');
 
       // Add to existing collection
       game.playCardToExistingCollectonFromHand(3, collection.getId());
       assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[25,14,22,21,27]');
       assert.equal(JSON.stringify(collection.getAllCardIds()), '[4,3]');
+      assert.equal(collection.getActiveSet(), 'green');
 
       assert.equal(turn.getActionCount(), 2);
     })
@@ -216,11 +218,12 @@ if(runThisTest) {
       // confirm card transfered
       const collectionB = playerManager.getCollection(2);
       assert.equal(JSON.stringify(collectionB.getAllCardIds()), '[4,3]');
-  
+      assert.equal(collectionB.getActiveSet(), 'green');
+
       // confirm old collection deleted
       const collectionA = playerManager.getCollection(1);
       assert.equal(collectionA, null);
     })
-    
+
   })
 }

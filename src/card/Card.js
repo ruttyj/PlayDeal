@@ -94,22 +94,22 @@ module.exports = class Card extends Model {
     return this._tags.has(tag);
   }
 
-  addComp(key, comp)
+  addMeta(key, comp)
   {
     this._comps.add(key, comp);
   }
 
-  hasComp(key)
+  hasMeta(key)
   {
     return this._comps.has(key);
   }
 
-  getComp(key)
+  getMeta(key)
   {
     return this._comps.get(key);
   }
 
-  removeComp(key)
+  removeMeta(key)
   {
     this._comps.remove(key);
   }

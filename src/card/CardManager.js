@@ -383,7 +383,7 @@ module.exports = class CardManager  {
         card.setKey(cardData.key);
         card.setValue(cardData.value);
         card.addTags([Card.TAG_PROPERTY, ...data.tags]);
-        card.addComp(Card.COMP_ACTIVE_SET, code);
+        card.addMeta(Card.COMP_ACTIVE_SET, code);
 
         this._cards.insert(card);
       })

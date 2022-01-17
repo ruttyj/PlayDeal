@@ -12,6 +12,7 @@ module.exports = class Collection {
   {
     this._id = 0;
     this._playerId = null;
+    this._activeSet = null;
     this._cards = new CardContainer(this._cardManager);
   }
 
@@ -33,6 +34,16 @@ module.exports = class Collection {
   getPlayerId()
   {
     return this._playerId;
+  }
+
+  setActiveSet(set)
+  {
+    this._activeSet = set;
+  }
+
+  getActiveSet()
+  {
+    return this._activeSet;
   }
 
   addCard(cardOrId)

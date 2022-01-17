@@ -3,6 +3,8 @@ const TagContainer = require('./TagContainer');
 
 module.exports = class PropertySet extends Model {
 
+  static AMBIGIOUS_SET = 'ambigious';
+  
   constructor()
   {
     super();

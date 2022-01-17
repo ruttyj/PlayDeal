@@ -13,7 +13,7 @@ module.exports = class CardFactory {
           Card.TAG_DRAW, 
           Card.TAG_BANKABLE
         ]);
-        card.addComp(Card.COMP_DRAW_CARD, {amount: 2});
+        card.addMeta(Card.COMP_DRAW_CARD, {amount: 2});
 
         return card;
       case 'DEBT_COLLECTOR':
@@ -26,7 +26,7 @@ module.exports = class CardFactory {
           Card.TAG_CONTESTABLE,
           Card.TAG_BANKABLE
         ]);
-        card.addComp(Card.COMP_COLLECT_VALUE, {
+        card.addMeta(Card.COMP_COLLECT_VALUE, {
           amount: 5, 
           target: Card.TARGET_ONE
         });
@@ -42,7 +42,7 @@ module.exports = class CardFactory {
           Card.TAG_CONTESTABLE,
           Card.TAG_BANKABLE
         ]);
-        card.addComp(Card.COMP_COLLECT_VALUE, {
+        card.addMeta(Card.COMP_COLLECT_VALUE, {
           amount: 2, 
           target: Card.TARGET_ALL
         });
@@ -104,7 +104,7 @@ module.exports = class CardFactory {
           Card.TAG_CONTESTABLE,
           Card.TAG_BANKABLE
         ]);
-        card.addComp(Card.COMP_COLLECT_VALUE_AUGMENT, {
+        card.addMeta(Card.COMP_COLLECT_VALUE_AUGMENT, {
           affects: {
             multiply: 2,
           },
@@ -126,7 +126,7 @@ module.exports = class CardFactory {
           Card.TAG_CONTESTABLE,
           Card.TAG_BANKABLE
         ]);
-        card.addComp(Card.COMP_COLLECT_VALUE_AUGMENT, {
+        card.addMeta(Card.COMP_COLLECT_VALUE_AUGMENT, {
           affects: {
             multiply: 2,
           },
@@ -148,7 +148,7 @@ module.exports = class CardFactory {
           Card.TAG_HOUSE,
           Card.TAG_BANKABLE
         ]);
-        card.addComp(Card.COMP_SET_AUGMENT, {
+        card.addMeta(Card.COMP_SET_AUGMENT, {
           affects: {
             inc: 3,
           },
@@ -172,7 +172,7 @@ module.exports = class CardFactory {
           Card.TAG_HOTEL,
           Card.TAG_BANKABLE
         ]);
-        card.addComp(Card.COMP_SET_AUGMENT, {
+        card.addMeta(Card.COMP_SET_AUGMENT, {
           affects: {
             inc: 4,
           },
@@ -192,7 +192,7 @@ module.exports = class CardFactory {
         card = this._makeBaseRentCard();
         card.setKey(cardKey);
         card.setValue(4);
-        card.addComp(Card.COMP_RENT, {
+        card.addMeta(Card.COMP_RENT, {
           target: Card.TARGET_ONE,
           sets: [
             "blue",
@@ -212,7 +212,7 @@ module.exports = class CardFactory {
       case 'RENT_BLUE_GREEN':
         card = this._makeBaseRentCard();
         card.setKey(cardKey);
-        card.addComp(Card.COMP_RENT, {
+        card.addMeta(Card.COMP_RENT, {
           target: Card.TARGET_ALL,
           sets: [
             "blue",
@@ -224,7 +224,7 @@ module.exports = class CardFactory {
       case 'RENT_ORANGE_PURPLE':
         card = this._makeBaseRentCard();
         card.setKey(cardKey);
-        card.addComp(Card.COMP_RENT, {
+        card.addMeta(Card.COMP_RENT, {
           target: Card.TARGET_ALL,
           sets: [
             "orange", 
@@ -236,7 +236,7 @@ module.exports = class CardFactory {
       case 'RENT_BLACK_PINK':
         card = this._makeBaseRentCard();
         card.setKey(cardKey);
-        card.addComp(Card.COMP_RENT, {
+        card.addMeta(Card.COMP_RENT, {
           target: Card.TARGET_ALL,
           sets: [
             "black", "pink"
@@ -247,7 +247,7 @@ module.exports = class CardFactory {
       case 'RENT_YELLOW_ORANGE':
         card = this._makeBaseRentCard();
         card.setKey(cardKey);
-        card.addComp(Card.COMP_RENT, {
+        card.addMeta(Card.COMP_RENT, {
           target: Card.TARGET_ALL,
           sets: [
             "yellow", "orange"
@@ -258,7 +258,7 @@ module.exports = class CardFactory {
       case 'RENT_BROWN_CYAN':
         card = this._makeBaseRentCard();
         card.setKey(cardKey);
-        card.addComp(Card.COMP_RENT, {
+        card.addMeta(Card.COMP_RENT, {
           target: Card.TARGET_ALL,
           sets: [
             "cyan", "brown"
