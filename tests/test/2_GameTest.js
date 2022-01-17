@@ -280,8 +280,32 @@ if(runThisTest) {
       assert.equal(collection.getActiveSet(), 'green');
     });
 
+    
+    it('Should toggle wild card', () => {
+      const game = makePropertyPlusWildGame();
+      const playerManager = game.getPlayerManager();
+
+      const player1Hand = playerManager.getPlayerHand(1);
+      assert.equal(player1Hand.getCard(37).getMeta(Card.COMP_ACTIVE_SET), 'blue');
+      game.toggleWildCardColorInHand(37);
+      assert.equal(player1Hand.getCard(37).getMeta(Card.COMP_ACTIVE_SET), 'green');
+      game.toggleWildCardColorInHand(37);
+      assert.equal(player1Hand.getCard(37).getMeta(Card.COMP_ACTIVE_SET), 'blue');
+    });
 
 
+    it('Should not toggle super wild card', () => {
+      const game = makePropertyPlusWildGame();
+      const playerManager = game.getPlayerManager();
+      const player1Hand = playerManager.getPlayerHand(1);
+      assert.equal(player1Hand.getCard(29).getMeta(Card.COMP_ACTIVE_SET), PropertySet.AMBIGIOUS_SET);
+      game.toggleWildCardColorInHand(29);
+      assert.equal(player1Hand.getCard(29).getMeta(Card.COMP_ACTIVE_SET), PropertySet.AMBIGIOUS_SET);
+    });
+
+    
+
+    /*
     it('', () => {
       const game = makePropertyPlusWildGame();
       const playerManager = game.getPlayerManager();
@@ -291,10 +315,10 @@ if(runThisTest) {
       const collectionId = 1;
       const collection = playerManager.getCollection(collectionId);
       assert.equal(collection.getActiveSet(), 'blue');
-      
+
 
     });
-
+    //*/
 
     //console.log(playerManager.getPlayerHand(1).getAllCards().map(c => c.serialize()));
     //console.log(collection.serialize());

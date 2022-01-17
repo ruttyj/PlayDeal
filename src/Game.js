@@ -360,14 +360,29 @@ module.exports = class Game {
     }
   }
 
-  changeWildCardColorInCollection(cardId, collectionId)
+  toggleWildCardColorInCollection(cardId, collectionId)
   {
     // @TODO
   }
 
-  changeWildCardColorInHand(cardId)
+  toggleWildCardColorInHand(cardId)
   {
-    // @TODO
+    const turn = this._turnManager.getTurn();
+    const playerManager = this._playerManager;
+    const playerId = turn.getPlayerId();
+    const playerHand = playerManager.getPlayerHand(playerId);
+
+    if (playerHand.hasCard(cardId)) {
+      const card = playerHand.getCard(cardId);
+      if (card.hasTag(Card.TAG_WILD_PROPERTY) && !card.hasTag(Card.TAG_SUPERWILD_PROPERTY)) {
+        const cardActiveSet = card.getMeta(Card.COMP_ACTIVE_SET);
+        const availableSets = card.getMeta(Card.COMP_AVAILABLE_SETS);
+        
+        let activeIndex = availableSets.findIndex((set) => set === cardActiveSet);
+        const newActiveSet = availableSets[(activeIndex + 1) % availableSets.length];
+        card.addMeta(Card.COMP_ACTIVE_SET, newActiveSet);
+      }
+    }
   }
 
   getMaxCardsInHand()
