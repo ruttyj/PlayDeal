@@ -3,6 +3,9 @@ const { describe, it } = require('mocha');
 
 const Game = require('../../src/Game');
 const Turn = require('../../src/turn/Turn');
+const Card = require('../../src/card/Card');
+const PropertySet = require('../../src/card/PropertySet');
+
 const runThisTest = true;
 
 const log = (item) => {
@@ -34,6 +37,21 @@ const makePropertyOnlyGame = () => {
 
   return game;
 }
+
+
+const makePropertyPlusWildGame = () => {
+  const game = new Game();
+  game.setSeed('test');
+  game.setScenario(Game.SCENARIO_PROPERTY_PLUS_WILD);
+
+  game.addPlayer();
+  game.addPlayer();
+
+  game.start();
+
+  return game;
+}
+
 
 if(runThisTest) {
 
@@ -178,7 +196,7 @@ if(runThisTest) {
       assert.equal(collection.getActiveSet(), 'green');
 
       assert.equal(turn.getActionCount(), 2);
-    })
+    });
 
     it('Transfer from one collection to a new collection', () => {
       const game = makePropertyOnlyGame();
@@ -199,7 +217,7 @@ if(runThisTest) {
       // confirm old collection deleted
       const collectionA = playerManager.getCollection(1);
       assert.equal(collectionA, null);
-    })
+    });
 
     it('Transfer from one collection to a existing collection', () => {
       const game = makePropertyOnlyGame();
@@ -223,7 +241,62 @@ if(runThisTest) {
       // confirm old collection deleted
       const collectionA = playerManager.getCollection(1);
       assert.equal(collectionA, null);
-    })
+    });
 
+    it('Wild cards should be generated', () => {
+      const game = makePropertyPlusWildGame();
+      const playerManager = game.getPlayerManager();
+      const deck = game.getDeck();
+      const player1Hand = playerManager.getPlayerHand(1);
+      const player2Hand = playerManager.getPlayerHand(2);
+
+      assert.equal(JSON.stringify(deck.getAllCardIds()), '[10,1,17,28,31,38,39,30,8,9,35,20,16,34,14,33,11,22,2,23,5,32,27,26,13,21,15,12,36]');
+      assert.equal(JSON.stringify(player1Hand.getAllCardIds()), '[18,37,7,3,29]');
+      assert.equal(JSON.stringify(player2Hand.getAllCardIds()), '[24,19,6,25,4]');
+    });
+
+    it('A collection with a super wild card should be ambigious', () => {
+      const game = makePropertyPlusWildGame();
+      const playerManager = game.getPlayerManager();
+
+      // Play ambigious super wild
+      game.playCardToNewCollectionFromHand(29);
+      const collectionId = 1;
+      const collection = playerManager.getCollection(collectionId);
+      assert.equal(collection.getActiveSet(), PropertySet.AMBIGIOUS_SET);
+    });
+
+
+    it('Adding a property to a collection only containing a super wild - the collection should take on the active set of the card applied', () => {
+      const game = makePropertyPlusWildGame();
+      const playerManager = game.getPlayerManager();
+
+      // Play ambigious super wild
+      game.playCardToNewCollectionFromHand(29);
+      const collectionId = 1;
+      const collection = playerManager.getCollection(collectionId);
+
+      game.playCardToExistingCollectonFromHand(3, collectionId);
+      assert.equal(collection.getActiveSet(), 'green');
+    });
+
+
+
+    it('', () => {
+      const game = makePropertyPlusWildGame();
+      const playerManager = game.getPlayerManager();
+
+      // Play green blue wild
+      game.playCardToNewCollectionFromHand(37);
+      const collectionId = 1;
+      const collection = playerManager.getCollection(collectionId);
+      assert.equal(collection.getActiveSet(), 'blue');
+      
+
+    });
+
+
+    //console.log(playerManager.getPlayerHand(1).getAllCards().map(c => c.serialize()));
+    //console.log(collection.serialize());
   })
 }

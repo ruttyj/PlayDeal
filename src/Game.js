@@ -12,6 +12,7 @@ module.exports = class Game {
 
   static SCENARIO_CASH_ONLY = 'cashOnly';
   static SCENARIO_PROPERTY_ONLY = 'propertyOnly';
+  static SCENARIO_PROPERTY_PLUS_WILD = 'propertyPlusWild';
   static SCENARIO_DEFAULT = 'default';
 
   constructor()
@@ -129,6 +130,10 @@ module.exports = class Game {
 
       case Game.SCENARIO_PROPERTY_ONLY:
         cardLoadout = CardManager.SCENARIO_PROPERTY_ONLY;
+        break;
+      
+      case Game.SCENARIO_PROPERTY_PLUS_WILD:
+        cardLoadout = CardManager.SCENARIO_PROPERTY_PLUS_WILD;
         break;
 
       case Game.SCENARIO_DEFAULT:
@@ -298,18 +303,17 @@ module.exports = class Game {
     const cardManager = this._cardManager;
 
     const card = cardManager.getCard(cardId);
-
     const collection = playerManager.getCollection(collectionId);
     const collectionActiveSet = collection.getActiveSet();
 
+    let applyCardSetToCollection = false;
     if(card.hasTag(Card.TAG_WILD_PROPERTY)) {
-      // @TODO
-      // if is wild card
-        // if collection is ambigious or undefined
-          // take current active set and apply to property
-        // else is card compatable with set
-          // switch card active set to match
+      applyCardSetToCollection = true;
     } else if(card.hasTag(Card.TAG_PROPERTY)) {
+      applyCardSetToCollection = true;
+    }
+
+    if(applyCardSetToCollection) {
       // if collection is ambigious or undefined
       if([null, PropertySet.AMBIGIOUS_SET].includes(collectionActiveSet)) {
         // get active property set from card
@@ -354,6 +358,16 @@ module.exports = class Game {
         }
       }
     }
+  }
+
+  changeWildCardColorInCollection(cardId, collectionId)
+  {
+    // @TODO
+  }
+
+  changeWildCardColorInHand(cardId)
+  {
+    // @TODO
   }
 
   getMaxCardsInHand()

@@ -9,6 +9,7 @@ module.exports = class CardManager  {
 
   static SCENARIO_CASH_ONLY = 'cashOnly';
   static SCENARIO_PROPERTY_ONLY = 'propertyOnly';
+  static SCENARIO_PROPERTY_PLUS_WILD = 'propertyPlusWild';
   static SCENARIO_DEFAULT = 'default';
 
   constructor()
@@ -33,6 +34,10 @@ module.exports = class CardManager  {
 
       case CardManager.SCENARIO_PROPERTY_ONLY:
         this._propertyOnlyCards();
+        break;
+      case CardManager.SCENARIO_PROPERTY_PLUS_WILD:
+        this._propertyOnlyCards();
+        this._wildPropertyCards();
         break;
         
       case CardManager.SCENARIO_DEFAULT:
@@ -59,6 +64,110 @@ module.exports = class CardManager  {
     this._generatePropertySets(this._getDefaultPropertySets());
   }
 
+  _wildPropertyCards()
+  {
+    const cardCounts = {
+      SUPER_WILD_PROPERTY: 2,
+      WILD_PROPERTY_ORANGE_PURPLE: 2,
+      WILD_PROPERTY_PINK_BLACK: 1,
+      WILD_PROPERTY_GREEN_BLACK: 1,
+      WILD_PROPERTY_CYAN_BLACK: 1,
+      WILD_PROPERTY_CYAN_BROWN: 1,
+      WILD_PROPERTY_GREEN_BLUE: 1,
+      WILD_PROPERTY_RED_YELLOW: 2,
+    }
+    const cardTemplates = {
+      SUPER_WILD_PROPERTY: {
+        key: "SUPER_WILD_PROPERTY",
+        tags: [Card.TAG_SUPERWILD_PROPERTY, Card.TAG_AMBIGIOUS_SET],
+        set: PropertySet.AMBIGIOUS_SET,
+        sets: [
+          "blue",
+          "green",
+          "yellow",
+          "red",
+          "orange",
+          "black",
+          "purple",
+          "cyan",
+          "pink",
+          "brown",
+          PropertySet.AMBIGIOUS_SET,
+        ],
+        value: 0,
+      },
+      WILD_PROPERTY_RED_YELLOW: {
+        key: "WILD_PROPERTY_RED_YELLOW",
+        set: "red",
+        sets: ["red", "yellow"],
+        tags: [],
+        value: 3,
+      },
+      WILD_PROPERTY_GREEN_BLUE: {
+        key: "WILD_PROPERTY_GREEN_BLUE",
+        set: "blue",
+        sets: ["green", "blue"],
+        tags: [],
+        value: 4,
+      },
+      WILD_PROPERTY_CYAN_BROWN: {
+        key: "WILD_PROPERTY_CYAN_BROWN",
+        set: "brown",
+        sets: ["cyan", "brown"],
+        tags: [],
+        value: 1,
+      },
+      WILD_PROPERTY_CYAN_BLACK: {
+        key: "WILD_PROPERTY_CYAN_BLACK",
+        set: "cyan",
+        sets: ["cyan", "black"],
+        tags: [],
+        value: 4,
+      },
+      WILD_PROPERTY_GREEN_BLACK: {
+        key: "WILD_PROPERTY_GREEN_BLACK",
+        set: "green",
+        sets: ["green", "black"],
+        tags: [],
+        value: 4,
+      },
+      WILD_PROPERTY_PINK_BLACK: {
+        key: "WILD_PROPERTY_PINK_BLACK",
+        set: "pink",
+        sets: ["pink", "black"],
+        tags: [],
+        value: 2,
+      },
+      WILD_PROPERTY_ORANGE_PURPLE: {
+        key: "WILD_PROPERTY_ORANGE_PURPLE",
+        set: "purple",
+        sets: ["orange", "purple"],
+        tags: [],
+        value: 2,
+      },
+    };
+
+    Object.keys(cardCounts).forEach((cardKey) => {
+      const quantity = cardCounts[cardKey];
+      const cardData = cardTemplates[cardKey];
+      if(cardData) {
+        for(let i = 0; i < quantity; ++i) {
+
+          const card =  new Card();
+          card.setType(Card.TYPE_PROPERTY);
+          card.setKey(cardData.key);
+          card.setValue(cardData.value);
+          card.addTags([Card.TAG_PROPERTY, Card.TAG_WILD_PROPERTY, ...cardData.tags]);
+          card.addMeta(Card.COMP_ACTIVE_SET, cardData.set);
+          card.addMeta(Card.COMP_AVAILABLE_SETS, cardData.sets);
+          
+          this._cards.insert(card);
+        }
+      }
+    });
+
+  }
+  
   getAllCards()
   {
     return this._cards.getAll();

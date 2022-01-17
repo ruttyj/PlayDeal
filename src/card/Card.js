@@ -24,13 +24,16 @@ module.exports = class Card extends Model {
   static TAG_HOTEL = 'hotel';
   static TAG_PROPERTY = 'property';
   static TAG_WILD_PROPERTY = 'wildProperty';
+  static TAG_SUPERWILD_PROPERTY = 'superWildProperty';
   static TAG_UTILITY = 'utility';
   static TAG_TRANSPORT = 'transport';
+  static TAG_AMBIGIOUS_SET = 'ambigious';
 
   static TARGET_ONE = 'one';
   static TARGET_ALL = 'all';
 
   static COMP_ACTIVE_SET = 'activeSet';
+  static COMP_AVAILABLE_SETS = 'availableSets';
   static COMP_DRAW_CARD = 'drawCard';
   static COMP_RENT = 'rent';
   static COMP_COLLECT_VALUE = 'collectValue';
@@ -44,7 +47,7 @@ module.exports = class Card extends Model {
     this._key = null;
     this._value = null;
     this._tags = new TagContainer();
-    this._comps = new ComponentContainer();
+    this._meta = new ComponentContainer();
   }
 
   setKey(key)
@@ -97,22 +100,22 @@ module.exports = class Card extends Model {
 
   addMeta(key, comp)
   {
-    this._comps.add(key, comp);
+    this._meta.add(key, comp);
   }
 
   hasMeta(key)
   {
-    return this._comps.has(key);
+    return this._meta.has(key);
   }
 
   getMeta(key)
   {
-    return this._comps.get(key);
+    return this._meta.get(key);
   }
 
   removeMeta(key)
   {
-    this._comps.remove(key);
+    this._meta.remove(key);
   }
 
   _serialize()
@@ -124,7 +127,7 @@ module.exports = class Card extends Model {
       key: this._key,
       value: this._value,
       tags: this._tags.serialize(),
-      comps: this._comps.serialize(),
+      meta: this._meta.serialize(),
     }
   }
 
@@ -135,6 +138,6 @@ module.exports = class Card extends Model {
     this._key = data.key;
     this._value = data.value;
     this._tags.unserialzie(data.tags);
-    this._comps.unserialzie(data.comps);
+    this._meta.unserialzie(data.meta);
   }
 }

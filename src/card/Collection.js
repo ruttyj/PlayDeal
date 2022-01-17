@@ -118,6 +118,9 @@ module.exports = class Collection {
   serialize()
   {
     return {
+      id: this._id,
+      playerId: this._playerId,
+      activeSet: this._activeSet,
       cards: this._cards.serialize()
     }
   }
