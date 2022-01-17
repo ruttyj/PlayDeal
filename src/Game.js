@@ -234,7 +234,7 @@ module.exports = class Game {
       if(playerHand.hasCard(cardId)) {
         const newCollection = playerManager.makeNewCollectionForPlayer(playerId);
         newCollection.addCard(playerHand.giveCard(cardId));
-        this._updateCollectionWithCard(newCollection.getId(), cardId);
+        this._updateCollectionAndCard(newCollection.getId(), cardId);
         turn.consumeAction();
       }
     }
@@ -252,7 +252,7 @@ module.exports = class Game {
         const collection = playerManager.getCollection(collectionId);
         if(collection && collection.getPlayerId() === playerId) {
           collection.addCard(playerHand.giveCard(cardId));
-          this._updateCollectionWithCard(collection.getId(), cardId);
+          this._updateCollectionAndCard(collection.getId(), cardId);
           turn.consumeAction();
         }
       }
@@ -273,10 +273,26 @@ module.exports = class Game {
 
   _canAddCardToCollection(cardId, collectionId)
   {
+    const playerManager = this._playerManager;
+    const cardManager = this._cardManager;
 
+    const card = cardManager.getCard(cardId);
+    const collection = playerManager.getCollection(collectionId);
+
+    if(card.hasTag(Card.TAG_WILD_PROPERTY)) {
+      // @TODO
+    } else if(card.hasTag(Card.TAG_PROPERTY)) {
+      const cardActiveSet = card.getMeta(Card.COMP_ACTIVE_SET);
+      if([null, cardActiveSet].includes(collection.getActiveSet())) {
+        return true;
+      }
+    } else if(card.hasTag(Card.TAG_SET_AUGMENT)) {
+      // @TODO
+    }
   }
 
-  _updateCollectionWithCard(collectionId, cardId)
+  // makes sure the card and collection are the same property set
+  _updateCollectionAndCard(collectionId, cardId)
   {
     const playerManager = this._playerManager;
     const cardManager = this._cardManager;
@@ -286,7 +302,14 @@ module.exports = class Game {
     const collection = playerManager.getCollection(collectionId);
     const collectionActiveSet = collection.getActiveSet();
 
-    if(card.hasTag(Card.TAG_PROPERTY)) {
+    if(card.hasTag(Card.TAG_WILD_PROPERTY)) {
+      // @TODO
+      // if is wild card
+        // if collection is ambigious or undefined
+          // take current active set and apply to property
+        // else is card compatable with set
+          // switch card active set to match
+    } else if(card.hasTag(Card.TAG_PROPERTY)) {
       // if collection is ambigious or undefined
       if([null, PropertySet.AMBIGIOUS_SET].includes(collectionActiveSet)) {
         // get active property set from card
@@ -307,13 +330,9 @@ module.exports = class Game {
     const collection = playerManager.getCollection(collectionId);
     if(collection.hasCard(cardId) && collection.getPlayerId() === playerId) {
       const newCollection = playerManager.makeNewCollectionForPlayer(playerId);
-      const canAddCardToCollection = true; // @TODO
-
-      if(canAddCardToCollection) {
-        newCollection.addCard(collection.giveCard(cardId));
-        this._updateCollectionWithCard(collectionId, cardId);
-        this._cleanUpCollection(collectionId);
-      }
+      newCollection.addCard(collection.giveCard(cardId));
+      this._updateCollectionAndCard(collectionId, cardId);
+      this._cleanUpCollection(collectionId);
     }
   }
 
@@ -328,10 +347,9 @@ module.exports = class Game {
       const collectionB = playerManager.getCollection(collectionBId);
 
       if(collectionB.getPlayerId() === playerId) {
-        const canAddCardToCollection = true; // @TODO
-        if(canAddCardToCollection) {
+        if(this._canAddCardToCollection(cardId, collectionB.getId())) {
           collectionB.addCard(collectionA.giveCard(cardId));
-          this._updateCollectionWithCard(collectionBId, cardId);
+          this._updateCollectionAndCard(collectionBId, cardId);
           this._cleanUpCollection(collectionAId);
         }
       }

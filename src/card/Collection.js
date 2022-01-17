@@ -43,7 +43,7 @@ module.exports = class Collection {
 
   getActiveSet()
   {
-    return this._activeSet;
+    return this._activeSet
   }
 
   addCard(cardOrId)

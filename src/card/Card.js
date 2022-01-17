@@ -23,6 +23,7 @@ module.exports = class Card extends Model {
   static TAG_HOUSE = 'house';
   static TAG_HOTEL = 'hotel';
   static TAG_PROPERTY = 'property';
+  static TAG_WILD_PROPERTY = 'wildProperty';
   static TAG_UTILITY = 'utility';
   static TAG_TRANSPORT = 'transport';
 
