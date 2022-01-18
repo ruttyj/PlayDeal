@@ -59,12 +59,10 @@ if(runThisTest) {
 
     it('Should deal 5 cards to each player', () => {
       const game = makeCashOnlyGame();
+      const deck = game.getDeck();
 
       const player1Id = 1;
       const player2Id = 2;
-
-      
-      const deck = game.getDeck();
 
       // deck should be shuffled
       const expectedDeckOrder = JSON.stringify([16,7,9,18,15,5,17,6,1,3]);
@@ -183,7 +181,7 @@ if(runThisTest) {
 
       // Create new collection
       game.playCardToNewCollectionFromHand(4);
-      const collection = playerManager.getCollection(1);
+      const collection = game.getCollection(1);
       assert.equal(JSON.stringify(playerHand.getAllCardIds()), '[25,3,14,22,21,27]');
       assert.equal(JSON.stringify(collection.getAllCardIds()), '[4]');
       assert.equal(collection.getPlayerId(), 1);
@@ -200,13 +198,11 @@ if(runThisTest) {
 
     it('Try to add wrong color to collection', () => {
       const game = makePropertyPlusWildGame();
-      const turnManager = game.getTurnManager();
-      const playerManager = game.getPlayerManager();
 
       game.dealTurnStartingCards();
       game.playCardToNewCollectionFromHand(37);
       const collectionId = 1;
-      const collection = playerManager.getCollection(collectionId);
+      const collection = game.getCollection(collectionId);
       assert.equal(collection.getActiveSet(), 'blue');
 
       // should not add to collection
@@ -219,7 +215,6 @@ if(runThisTest) {
 
     it('Transfer from one collection to a new collection', () => {
       const game = makePropertyOnlyGame();
-      const playerManager = game.getPlayerManager();
 
       game.dealTurnStartingCards();
 
@@ -230,17 +225,16 @@ if(runThisTest) {
       game.transferCardToNewCollectionFromCollection(1, 4);
 
       // confirm card transfered
-      const collectionB = playerManager.getCollection(2);
+      const collectionB = game.getCollection(2);
       assert.equal(JSON.stringify(collectionB.getAllCardIds()), '[4]');
 
       // confirm old collection deleted
-      const collectionA = playerManager.getCollection(1);
+      const collectionA = game.getCollection(1);
       assert.equal(collectionA, null);
     });
 
     it('Transfer from one collection to a existing collection', () => {
       const game = makePropertyOnlyGame();
-      const playerManager = game.getPlayerManager();
   
       game.dealTurnStartingCards();
   
@@ -253,12 +247,12 @@ if(runThisTest) {
       game.transferCardToExistingCollectionFromCollection(1, 3, 2);
   
       // confirm card transfered
-      const collectionB = playerManager.getCollection(2);
+      const collectionB = game.getCollection(2);
       assert.equal(JSON.stringify(collectionB.getAllCardIds()), '[4,3]');
       assert.equal(collectionB.getActiveSet(), 'green');
 
       // confirm old collection deleted
-      const collectionA = playerManager.getCollection(1);
+      const collectionA = game.getCollection(1);
       assert.equal(collectionA, null);
     });
 
@@ -276,29 +270,25 @@ if(runThisTest) {
 
     it('A collection with a super wild card should be ambigious', () => {
       const game = makePropertyPlusWildGame();
-      const playerManager = game.getPlayerManager();
 
       // Play ambigious super wild
       game.playCardToNewCollectionFromHand(29);
       const collectionId = 1;
-      const collection = playerManager.getCollection(collectionId);
+      const collection = game.getCollection(collectionId);
       assert.equal(collection.getActiveSet(), PropertySet.AMBIGIOUS_SET);
     });
 
-
     it('Adding a property to a collection only containing a super wild - the collection should take on the active set of the card applied', () => {
       const game = makePropertyPlusWildGame();
-      const playerManager = game.getPlayerManager();
 
       // Play ambigious super wild
       game.playCardToNewCollectionFromHand(29);
       const collectionId = 1;
-      const collection = playerManager.getCollection(collectionId);
+      const collection = game.getCollection(collectionId);
 
       game.playCardToExistingCollectonFromHand(3, collectionId);
       assert.equal(collection.getActiveSet(), 'green');
     });
-
     
     it('Should toggle wild card', () => {
       const game = makePropertyPlusWildGame();
@@ -311,7 +301,6 @@ if(runThisTest) {
       assert.equal(player1Hand.getCard(37).getMeta(Card.COMP_ACTIVE_SET), 'blue');
     });
 
-
     it('Should not toggle super wild card', () => {
       const game = makePropertyPlusWildGame();
       const playerManager = game.getPlayerManager();
@@ -321,16 +310,14 @@ if(runThisTest) {
       assert.equal(player1Hand.getCard(29).getMeta(Card.COMP_ACTIVE_SET), PropertySet.AMBIGIOUS_SET);
     });
 
-
     it('Switch the set of a Collection containging 1 card should work', () => {
       const game = makePropertyPlusWildGame();
-      const playerManager = game.getPlayerManager();
 
       const cardId = 37;
       game.playCardToNewCollectionFromHand(cardId);
 
       const collectionId = 1;
-      const collection = playerManager.getCollection(collectionId);
+      const collection = game.getCollection(collectionId);
       assert.equal(collection.getActiveSet(), 'blue');
 
       game.toggleWildCardColorInCollection(cardId, collectionId);
@@ -340,18 +327,15 @@ if(runThisTest) {
       assert.equal(card.getMeta(Card.COMP_ACTIVE_SET), 'green');
     });
 
-
-
     it('Switch the set of a Collection containging 2 cards', () => {
       const game = makePropertyPlusWildGame();
-      const playerManager = game.getPlayerManager();
 
       // create a set with a wildcard
       const cardId = 37;
       game.toggleWildCardColorInHand(cardId);
       game.playCardToNewCollectionFromHand(cardId);
       const collectionId = 1;
-      const collection = playerManager.getCollection(collectionId);
+      const collection = game.getCollection(collectionId);
 
       // add green card to collection
       game.playCardToExistingCollectonFromHand(3, collectionId);

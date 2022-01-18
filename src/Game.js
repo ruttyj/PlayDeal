@@ -93,6 +93,12 @@ module.exports = class Game {
     return this._playerManager.getPlayerCount();
   }
 
+  getCollection(collectionId)
+  {
+    // yes this is a bit of a streach, to be refactored
+    return this._playerManager.getCollection(collectionId);
+  }
+
   canStart()
   {
     return !this._hasStarted && !this._hasEnded && this._hasEnoughPeopleToStart();
