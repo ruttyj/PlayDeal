@@ -256,9 +256,11 @@ module.exports = class Game {
       if(playerHand.hasCard(cardId)) {
         const collection = playerManager.getCollection(collectionId);
         if(collection && collection.getPlayerId() === playerId) {
-          collection.addCard(playerHand.giveCard(cardId));
-          this._updateCollectionAndCard(collection.getId(), cardId);
-          turn.consumeAction();
+          if(this._canAddCardToCollection(cardId, collectionId)) {
+            collection.addCard(playerHand.giveCard(cardId));
+            this._updateCollectionAndCard(collection.getId(), cardId);
+            turn.consumeAction();
+          }
         }
       }
     }
@@ -284,11 +286,9 @@ module.exports = class Game {
     const card = cardManager.getCard(cardId);
     const collection = playerManager.getCollection(collectionId);
 
-    if(card.hasTag(Card.TAG_WILD_PROPERTY)) {
-      // @TODO
-    } else if(card.hasTag(Card.TAG_PROPERTY)) {
+    if(card.hasTag(Card.TAG_PROPERTY) || card.hasTag(Card.TAG_WILD_PROPERTY)) {
       const cardActiveSet = card.getMeta(Card.COMP_ACTIVE_SET);
-      if([null, cardActiveSet].includes(collection.getActiveSet())) {
+      if([null, PropertySet.AMBIGIOUS_SET, cardActiveSet].includes(collection.getActiveSet())) {
         return true;
       }
     } else if(card.hasTag(Card.TAG_SET_AUGMENT)) {
@@ -362,7 +362,25 @@ module.exports = class Game {
 
   toggleWildCardColorInCollection(cardId, collectionId)
   {
-    // @TODO
+    const turn = this._turnManager.getTurn();
+    const playerManager = this._playerManager;
+    const playerId = turn.getPlayerId();
+
+    const collection = playerManager.getCollection(collectionId);
+    if (collection 
+      && collection.getPlayerId() === playerId 
+      && collection.hasCard(cardId)
+      && collection.cardCount() === 1
+    ) {
+      const card = collection.getCard(cardId);
+      const cardActiveSet = card.getMeta(Card.COMP_ACTIVE_SET);
+      const availableSets = card.getMeta(Card.COMP_AVAILABLE_SETS);
+      
+      let activeIndex = availableSets.findIndex((set) => set === cardActiveSet);
+      const newActiveSet = availableSets[(activeIndex + 1) % availableSets.length];
+      card.addMeta(Card.COMP_ACTIVE_SET, newActiveSet);
+      collection.setActiveSet(newActiveSet);
+    }
   }
 
   toggleWildCardColorInHand(cardId)

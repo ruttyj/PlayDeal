@@ -198,6 +198,25 @@ if(runThisTest) {
       assert.equal(turn.getActionCount(), 2);
     });
 
+    it('Try to add wrong color to collection', () => {
+      const game = makePropertyPlusWildGame();
+      const turnManager = game.getTurnManager();
+      const playerManager = game.getPlayerManager();
+
+      game.dealTurnStartingCards();
+      game.playCardToNewCollectionFromHand(37);
+      const collectionId = 1;
+      const collection = playerManager.getCollection(collectionId);
+      assert.equal(collection.getActiveSet(), 'blue');
+
+      // should not add to collection
+      game.playCardToExistingCollectonFromHand(3, collectionId);
+      // should still be only 1 card
+      assert.equal(collection.cardCount(), 1);
+      // should still be blue
+      assert.equal(collection.getActiveSet(), 'blue');
+    });
+
     it('Transfer from one collection to a new collection', () => {
       const game = makePropertyOnlyGame();
       const playerManager = game.getPlayerManager();
@@ -284,7 +303,6 @@ if(runThisTest) {
     it('Should toggle wild card', () => {
       const game = makePropertyPlusWildGame();
       const playerManager = game.getPlayerManager();
-
       const player1Hand = playerManager.getPlayerHand(1);
       assert.equal(player1Hand.getCard(37).getMeta(Card.COMP_ACTIVE_SET), 'blue');
       game.toggleWildCardColorInHand(37);
@@ -303,22 +321,48 @@ if(runThisTest) {
       assert.equal(player1Hand.getCard(29).getMeta(Card.COMP_ACTIVE_SET), PropertySet.AMBIGIOUS_SET);
     });
 
-    
 
-    /*
-    it('', () => {
+    it('Switch the set of a Collection containging 1 card should work', () => {
       const game = makePropertyPlusWildGame();
       const playerManager = game.getPlayerManager();
 
-      // Play green blue wild
-      game.playCardToNewCollectionFromHand(37);
+      const cardId = 37;
+      game.playCardToNewCollectionFromHand(cardId);
+
       const collectionId = 1;
       const collection = playerManager.getCollection(collectionId);
       assert.equal(collection.getActiveSet(), 'blue');
 
+      game.toggleWildCardColorInCollection(cardId, collectionId);
+      assert.equal(collection.getActiveSet(), 'green');
 
+      const card = collection.getCard(cardId);
+      assert.equal(card.getMeta(Card.COMP_ACTIVE_SET), 'green');
     });
-    //*/
+
+
+
+    it('Switch the set of a Collection containging 2 cards', () => {
+      const game = makePropertyPlusWildGame();
+      const playerManager = game.getPlayerManager();
+
+      // create a set with a wildcard
+      const cardId = 37;
+      game.toggleWildCardColorInHand(cardId);
+      game.playCardToNewCollectionFromHand(cardId);
+      const collectionId = 1;
+      const collection = playerManager.getCollection(collectionId);
+
+      // add green card to collection
+      game.playCardToExistingCollectonFromHand(3, collectionId);
+      assert.equal(collection.cardCount(), 2);
+
+      // attempt to change the color of the wild card in a set with another card
+      game.toggleWildCardColorInCollection(cardId, collectionId);
+
+      // should still be green
+      assert.equal(collection.getActiveSet(), 'green');
+    });
 
     //console.log(playerManager.getPlayerHand(1).getAllCards().map(c => c.serialize()));
     //console.log(collection.serialize());

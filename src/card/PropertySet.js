@@ -2,7 +2,7 @@ const Model = require('../base/Model');
 const TagContainer = require('./TagContainer');
 
 module.exports = class PropertySet extends Model {
-  
+
   static AMBIGIOUS_SET = 'ambigious';
   static USELESS_SET = 'useless';
   
