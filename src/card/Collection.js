@@ -14,6 +14,7 @@ module.exports = class Collection {
     this._playerId = null;
     this._activeSet = null;
     this._cards = new CardContainer(this._cardManager);
+    this._cardManager = this._cardManager;
   }
 
   setId(id)
@@ -44,6 +45,12 @@ module.exports = class Collection {
   getActiveSet()
   {
     return this._activeSet
+  }
+
+  getPropertySet()
+  {
+    const propertySet = this._cardManager.getPropertySet(this._activeSet)
+    return propertySet ? propertySet : null;
   }
 
   addCard(cardOrId)

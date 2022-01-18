@@ -258,18 +258,21 @@ if(runThisTest) {
 
     it('Wild cards should be generated', () => {
       const game = makePropertyPlusWildGame();
+      game.dealTurnStartingCards();
+
       const playerManager = game.getPlayerManager();
       const deck = game.getDeck();
       const player1Hand = playerManager.getPlayerHand(1);
       const player2Hand = playerManager.getPlayerHand(2);
 
-      assert.equal(JSON.stringify(deck.getAllCardIds()), '[10,1,17,28,31,38,39,30,8,9,35,20,16,34,14,33,11,22,2,23,5,32,27,26,13,21,15,12,36]');
-      assert.equal(JSON.stringify(player1Hand.getAllCardIds()), '[18,37,7,3,29]');
+      assert.equal(JSON.stringify(deck.getAllCardIds()), '[10,1,17,28,31,38,39,30,8,9,35,20,16,34,14,33,11,22,2,23,5,32,27,26,13,21,15]');
+      assert.equal(JSON.stringify(player1Hand.getAllCardIds()), '[18,37,7,3,29,36,12]');
       assert.equal(JSON.stringify(player2Hand.getAllCardIds()), '[24,19,6,25,4]');
     });
 
     it('A collection with a super wild card should be ambigious', () => {
       const game = makePropertyPlusWildGame();
+      game.dealTurnStartingCards();
 
       // Play ambigious super wild
       game.playCardToNewCollectionFromHand(29);
@@ -280,6 +283,7 @@ if(runThisTest) {
 
     it('Adding a property to a collection only containing a super wild - the collection should take on the active set of the card applied', () => {
       const game = makePropertyPlusWildGame();
+      game.dealTurnStartingCards();
 
       // Play ambigious super wild
       game.playCardToNewCollectionFromHand(29);
@@ -312,6 +316,7 @@ if(runThisTest) {
 
     it('Switch the set of a Collection containging 1 card should work', () => {
       const game = makePropertyPlusWildGame();
+      game.dealTurnStartingCards();
 
       const cardId = 37;
       game.playCardToNewCollectionFromHand(cardId);
@@ -329,6 +334,7 @@ if(runThisTest) {
 
     it('Switch the set of a Collection containging 2 cards', () => {
       const game = makePropertyPlusWildGame();
+      game.dealTurnStartingCards();
 
       // create a set with a wildcard
       const cardId = 37;
@@ -347,6 +353,8 @@ if(runThisTest) {
       // should still be green
       assert.equal(collection.getActiveSet(), 'green');
     });
+
+
 
     //console.log(playerManager.getPlayerHand(1).getAllCards().map(c => c.serialize()));
     //console.log(collection.serialize());

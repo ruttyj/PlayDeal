@@ -237,7 +237,7 @@ module.exports = class Game {
   playCardToNewCollectionFromHand(cardId)
   {
     const turn = this._turnManager.getTurn();
-    if(turn.isWithinActionLimit()) {
+    if(turn.getPhase() === Turn.PHASE_ACTION && turn.isWithinActionLimit()) {
       const playerManager = this._playerManager;
       const playerId = turn.getPlayerId();
       const playerHand = playerManager.getPlayerHand(playerId);
@@ -254,7 +254,7 @@ module.exports = class Game {
   playCardToExistingCollectonFromHand(cardId, collectionId)
   {
     const turn = this._turnManager.getTurn();
-    if(turn.isWithinActionLimit()) {
+    if(turn.getPhase() === Turn.PHASE_ACTION && turn.isWithinActionLimit()) {
       const playerManager = this._playerManager;
       const playerId = turn.getPlayerId();
       const playerHand = playerManager.getPlayerHand(playerId);
@@ -338,11 +338,13 @@ module.exports = class Game {
     const playerId = turn.getPlayerId();
 
     const collection = playerManager.getCollection(collectionId);
-    if(collection.hasCard(cardId) && collection.getPlayerId() === playerId) {
-      const newCollection = playerManager.makeNewCollectionForPlayer(playerId);
-      newCollection.addCard(collection.giveCard(cardId));
-      this._updateCollectionAndCard(collectionId, cardId);
-      this._cleanUpCollection(collectionId);
+    if(turn.getPhase() === Turn.PHASE_ACTION) {
+      if(collection.hasCard(cardId) && collection.getPlayerId() === playerId) {
+        const newCollection = playerManager.makeNewCollectionForPlayer(playerId);
+        newCollection.addCard(collection.giveCard(cardId));
+        this._updateCollectionAndCard(collectionId, cardId);
+        this._cleanUpCollection(collectionId);
+      }
     }
   }
 
@@ -353,14 +355,16 @@ module.exports = class Game {
     const playerId = turn.getPlayerId();
 
     const collectionA = playerManager.getCollection(collectionAId);
-    if(collectionA && collectionA.hasCard(cardId) && collectionA.getPlayerId() === playerId) {
-      const collectionB = playerManager.getCollection(collectionBId);
+    if(turn.getPhase() === Turn.PHASE_ACTION) {
+      if(collectionA && collectionA.hasCard(cardId) && collectionA.getPlayerId() === playerId) {
+        const collectionB = playerManager.getCollection(collectionBId);
 
-      if(collectionB.getPlayerId() === playerId) {
-        if(this._canAddCardToCollection(cardId, collectionB.getId())) {
-          collectionB.addCard(collectionA.giveCard(cardId));
-          this._updateCollectionAndCard(collectionBId, cardId);
-          this._cleanUpCollection(collectionAId);
+        if(collectionB.getPlayerId() === playerId) {
+          if(this._canAddCardToCollection(cardId, collectionB.getId())) {
+            collectionB.addCard(collectionA.giveCard(cardId));
+            this._updateCollectionAndCard(collectionBId, cardId);
+            this._cleanUpCollection(collectionAId);
+          }
         }
       }
     }
