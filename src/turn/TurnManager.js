@@ -33,8 +33,10 @@ module.exports = class TurnManager {
 
   nextTurn()
   {
-    this._incPlayerIndex();
-    this._newTurn();
+    if(this._currentTurn.getPhase() === Turn.PHASE_DONE) {
+      this._incPlayerIndex();
+      this._newTurn();
+    }
   }
 
   getTurn()

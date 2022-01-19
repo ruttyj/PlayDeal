@@ -1,4 +1,5 @@
 const CardContainer = require('./CardContainer');
+const Card = require('./Card');
 
 module.exports = class Collection {
   constructor(playerId, cardManager)
@@ -51,6 +52,16 @@ module.exports = class Collection {
   {
     const propertySet = this._cardManager.getPropertySet(this._activeSet)
     return propertySet ? propertySet : null;
+  }
+
+  isComplete()
+  {
+    const propertySet = this.getPropertySet();
+    if(propertySet) {
+      const propertyCards = this._cards.findCards((card) => card.hasTag(Card.TAG_PROPERTY));
+      return propertyCards.length === propertySet.getSize();
+    }
+    return false;
   }
 
   addCard(cardOrId)

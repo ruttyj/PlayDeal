@@ -477,6 +477,7 @@ module.exports = class CardManager  {
       propertySet.setCode(code);
       propertySet.setColorCode(data.colorCode);
       propertySet.addTags(data.tags);
+      propertySet.setSize(data.cards.length);
       Object.keys(data.rent).forEach(cardCount => {
         const rentValue = data.rent[cardCount];
         propertySet.setRentValue(cardCount, rentValue);

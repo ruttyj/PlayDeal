@@ -1,9 +1,13 @@
+const TagContainer = require('../card/TagContainer');
+
 module.exports = class Turn {
   static PHASE_DRAW = 'draw';
   static PHASE_ACTION = 'action';
   static PHASE_REQUEST = 'request';
   static PHASE_DISCARD = 'discard';
   static PHASE_DONE = 'done';
+
+  static TAG_CARDS_DRAWN = 'cardsDrawn';
 
   constructor(game, playerId)
   {
@@ -18,6 +22,7 @@ module.exports = class Turn {
     this._game = game;
     this._playerId = playerId;
     this._phase = Turn.PHASE_DRAW;
+    this._tags = new TagContainer();
     this._actionLimit = 3;
     this._actionCount = 0;
   }
@@ -35,6 +40,28 @@ module.exports = class Turn {
   getPhase()
   {
     return this._phase;
+  }
+
+  addTag(tag)
+  {
+    this._tags.add(tag);
+  }
+  
+  addTags(tags)
+  {
+    tags.forEach(tag => {
+      this._tags.add(tag);
+    })
+  }
+
+  hasTag(tag)
+  {
+    return this._tags.has(tag);
+  }
+
+  removeTag(tag)
+  {
+    this._tags.remove(tag);
   }
 
   getActionLimit()
@@ -65,36 +92,48 @@ module.exports = class Turn {
     return this.getActionCount() < this.getActionLimit();
   }
 
-  _shouldDiscardCards()
+  getCountCardsTooMany()
   {
-    const playerId = this._playerId;
     const playerManager = this._game.getPlayerManager();
-    const playerHand = playerManager.getPlayerHand(playerId);
+    const playerHand = playerManager.getPlayerHand(this._playerId);
+    const result = Math.max(0, playerHand.count() - this._game.getMaxCardsInHand());
+    return result;
+  }
 
-    return playerHand.count() > this._game.getMaxCardsInHand();
+  shouldDiscardCards()
+  {
+    return this.getCountCardsTooMany() > 0;
   }
 
   nextPhase()
   {
-    let currentPhase = this.getPhase();
+    const currentPhase = this.getPhase();
+    let resultPhase = currentPhase;
     if (currentPhase !== Turn.PHASE_DONE) {
-      let goToEnd = true;
-      // can still play?
-      if(this.isWithinActionLimit()) {
-        if ([Turn.PHASE_DRAW, Turn.PHASE_REQUEST].includes(currentPhase)) {
-          this.setPhase(Turn.PHASE_ACTION);
-          goToEnd = false;
-        } 
-      } 
-
-      if (goToEnd) {
-        // should discard?
-        if (this._shouldDiscardCards()) {
-          this.setPhase(Turn.PHASE_DIACARD);
-        } else {
-          this.setPhase(Turn.PHASE_DONE);
-        }
+      switch(currentPhase) {
+        case Turn.PHASE_DRAW:
+          if(this.hasTag(Turn.TAG_CARDS_DRAWN)){
+            resultPhase = Turn.PHASE_ACTION;
+          }
+          break;
+        case Turn.PHASE_ACTION:
+          if (this.shouldDiscardCards()) {
+            resultPhase = Turn.PHASE_DISCARD;
+          } else {
+            resultPhase = Turn.PHASE_DONE;
+          }
+          break;
+        case Turn.PHASE_REQUEST:
+          // @TODO check if requests are all satisfied
+          break;
+        case Turn.PHASE_DISCARD:
+          if (!this.shouldDiscardCards()) {
+            resultPhase = Turn.PHASE_DONE;
+          }
+          break;
+        default:
       }
+      this.setPhase(resultPhase);
     }
   }
 

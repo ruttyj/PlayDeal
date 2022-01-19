@@ -86,6 +86,11 @@ module.exports = class Card extends Model {
     return this._value;
   }
 
+  addTag(tag)
+  {
+    this._tags.add(tag);
+  }
+  
   addTags(tags)
   {
     tags.forEach(tag => {
@@ -96,6 +101,11 @@ module.exports = class Card extends Model {
   hasTag(tag)
   {
     return this._tags.has(tag);
+  }
+
+  removeTag(tag)
+  {
+    this._tags.remove(tag);
   }
 
   addMeta(key, comp)

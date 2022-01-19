@@ -103,6 +103,11 @@ module.exports = class CardContainer {
     return this._items.size;
   }
 
+  cardCount()
+  {
+    return this._items.size;
+  }
+
   removeCard(cardOrId)
   {
     const cardId = this._getId(cardOrId);

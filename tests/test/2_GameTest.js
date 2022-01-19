@@ -54,9 +54,7 @@ const makePropertyPlusWildGame = () => {
 
 
 if(runThisTest) {
-
-  describe("PlayDeal Game", () => {
-
+  describe("Game Start", () => {
     it('Should deal 5 cards to each player', () => {
       const game = makeCashOnlyGame();
       const deck = game.getDeck();
@@ -75,36 +73,9 @@ if(runThisTest) {
       assert.equal(JSON.stringify(player2Hand.getAllCardIds()), '[10,2,12,11,20]');
     });
 
-    it('Happy Path - Loop through turn phases and player turns', () => {
-      const game = makeCashOnlyGame();
-      const turnManager = game.getTurnManager();
+  });
 
-      // Get first player
-      // Cycle through phases
-      if(1) {
-        const turn = turnManager.getTurn();
-        assert.equal(turn.getPlayerId(), 1);
-        assert.equal(turn.getPhase(), Turn.PHASE_DRAW);
-        turn.nextPhase();
-        assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
-        turn.nextPhase();
-        assert.equal(turn.getPhase(), Turn.PHASE_DONE);
-      }
-      
-      // try going to next turn
-      if(1) {
-        turnManager.nextTurn();
-        const turn = turnManager.getTurn();
-        assert.equal(turn.getPlayerId(), 2);
-      }
-
-      // should circle around to the first player
-      if(1) {
-        turnManager.nextTurn();
-        const turn = turnManager.getTurn();
-        assert.equal(turn.getPlayerId(), 1);
-      }
-    });
+  describe("Turn and Phase", () => {
 
     it('Deal turn starting cards', () => {
       const game = makeCashOnlyGame();
@@ -127,6 +98,110 @@ if(runThisTest) {
       assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
     });
 
+    it('When drawing turn starting card should set the turn phase to action', () => {
+      const game = makeCashOnlyGame();
+      const turnManager = game.getTurnManager();
+      const turn = turnManager.getTurn();
+      assert.equal(turn.getPlayerId(), 1);
+      assert.equal(turn.getPhase(), Turn.PHASE_DRAW);
+      game.dealTurnStartingCards();
+      assert.equal(turn.getPhase(), Turn.PHASE_ACTION);
+    });
+
+    it('Attempt to pass turn when in draw phase should fail', () => {
+      const game = makeCashOnlyGame();
+      const turnManager = game.getTurnManager();
+      turnManager.nextTurn();
+
+      const turn = turnManager.getTurn();
+      assert.equal(turn.getPlayerId(), 1);
+    });
+
+    it('Attempt to pass turn when in done phase should pass turn to player 2', () => {
+      const game = makeCashOnlyGame();
+      const turnManager = game.getTurnManager();
+
+      if(1){
+        const turn = turnManager.getTurn();
+        game.dealTurnStartingCards();
+        // Attempt to pass turn when in action should fail
+        turn.nextPhase();
+        assert.equal(turn.getPhase(), Turn.PHASE_DONE);
+        turnManager.nextTurn();
+      }
+      if(1){
+        const turn = turnManager.getTurn();
+        assert.equal(turn.getPlayerId(), 2);
+        assert.equal(turn.getPhase(), Turn.PHASE_DRAW);
+      }
+    });
+
+
+    it('Player 1 attempts to pass turn whith 9 cards in hand should end in discard phase', () => {
+      const game = makeCashOnlyGame();
+      const playerManager = game.getPlayerManager();
+      const turnManager = game.getTurnManager();
+
+      // Player 1 passes turn
+      if(1){
+        const turn = turnManager.getTurn();
+        game.dealTurnStartingCards();
+        turn.nextPhase();
+        turnManager.nextTurn();
+      }
+
+      // Player 2 passes turn
+      if(1){
+        const turn = turnManager.getTurn();
+        game.dealTurnStartingCards();
+        turn.nextPhase();
+        turnManager.nextTurn();
+      }
+
+      // Player 1 attempts to pass turn whith 9 cards in hand should end in discard phase
+      if(1){
+        const turn = turnManager.getTurn();
+        game.dealTurnStartingCards();
+        
+        turn.nextPhase();
+        assert.equal(turn.getPhase(), Turn.PHASE_DISCARD);
+      }
+    });
+
+    it('Player 1 attempts to pass turn whith 9 cards in hand should end in discard phase', () => {
+      const game = makeCashOnlyGame();
+      const playerManager = game.getPlayerManager();
+      const turnManager = game.getTurnManager();
+
+      // Player 1 passes turn
+      if(1){
+        const turn = turnManager.getTurn();
+        game.dealTurnStartingCards();
+        turn.nextPhase();
+        turnManager.nextTurn();
+      }
+
+      // Player 2 passes turn
+      if(1){
+        const turn = turnManager.getTurn();
+        game.dealTurnStartingCards();
+        turn.nextPhase();
+        turnManager.nextTurn();
+      }
+
+      // Player 1 attempts to pass turn whith 9 cards in hand should end in discard phase
+      if(1){
+        const turn = turnManager.getTurn();
+        game.dealTurnStartingCards();
+        turn.nextPhase();
+        game.discardCards([13, 19]);
+        assert.equal(turn.getPhase(), Turn.PHASE_DONE);
+      }
+    });
+
+  });
+
+  describe("Bank", () => {
     it('Place card in bank from hand', () => {
       const game = makeCashOnlyGame();
       const turnManager = game.getTurnManager();
@@ -168,8 +243,11 @@ if(runThisTest) {
       assert.equal(turn.getPlayerId(), 1);
       assert.equal(turn.getPhase(), Turn.PHASE_DONE);
     });
+  });
 
-    it('Deal property cards add two cards to a new collection', () => {
+
+  describe("Plain Collections", () => {
+    it('Should be able to create a collection with two cards of the same property set', () => {
       const game = makePropertyOnlyGame();
       const turnManager = game.getTurnManager();
       const playerManager = game.getPlayerManager();
@@ -194,23 +272,6 @@ if(runThisTest) {
       assert.equal(collection.getActiveSet(), 'green');
 
       assert.equal(turn.getActionCount(), 2);
-    });
-
-    it('Try to add wrong color to collection', () => {
-      const game = makePropertyPlusWildGame();
-
-      game.dealTurnStartingCards();
-      game.playCardToNewCollectionFromHand(37);
-      const collectionId = 1;
-      const collection = game.getCollection(collectionId);
-      assert.equal(collection.getActiveSet(), 'blue');
-
-      // should not add to collection
-      game.playCardToExistingCollectonFromHand(3, collectionId);
-      // should still be only 1 card
-      assert.equal(collection.cardCount(), 1);
-      // should still be blue
-      assert.equal(collection.getActiveSet(), 'blue');
     });
 
     it('Transfer from one collection to a new collection', () => {
@@ -255,7 +316,9 @@ if(runThisTest) {
       const collectionA = game.getCollection(1);
       assert.equal(collectionA, null);
     });
+  });
 
+  describe("Collections with wildcards", () => {
     it('Wild cards should be generated', () => {
       const game = makePropertyPlusWildGame();
       game.dealTurnStartingCards();
@@ -268,6 +331,24 @@ if(runThisTest) {
       assert.equal(JSON.stringify(deck.getAllCardIds()), '[10,1,17,28,31,38,39,30,8,9,35,20,16,34,14,33,11,22,2,23,5,32,27,26,13,21,15]');
       assert.equal(JSON.stringify(player1Hand.getAllCardIds()), '[18,37,7,3,29,36,12]');
       assert.equal(JSON.stringify(player2Hand.getAllCardIds()), '[24,19,6,25,4]');
+    });
+
+    it('Try to add wrong color to collection', () => {
+      const game = makePropertyPlusWildGame();
+
+      game.dealTurnStartingCards();
+      game.playCardToNewCollectionFromHand(37);
+      const collectionId = 1;
+      const collection = game.getCollection(collectionId);
+      assert.equal(collection.getActiveSet(), 'blue');
+
+      // attempt to add blue >green< wild card
+      // should not add to collection
+      game.playCardToExistingCollectonFromHand(3, collectionId);
+      // should still be only 1 card
+      assert.equal(collection.cardCount(), 1);
+      // should still be blue
+      assert.equal(collection.getActiveSet(), 'blue');
     });
 
     it('A collection with a super wild card should be ambigious', () => {
@@ -354,9 +435,20 @@ if(runThisTest) {
       assert.equal(collection.getActiveSet(), 'green');
     });
 
+    /*
+    it('', () => {
+      const game = makePropertyPlusWildGame();
+      const playerManager = game.getPlayerManager();
+      game.dealTurnStartingCards();
 
+      game.toggleWildCardColorInHand(37);
+      game.playCardToNewCollectionFromHand(37);
+      game.playCardToExistingCollectonFromHand(3, 1);
 
+    });
+    //*/
+    
+  });
     //console.log(playerManager.getPlayerHand(1).getAllCards().map(c => c.serialize()));
     //console.log(collection.serialize());
-  })
 }

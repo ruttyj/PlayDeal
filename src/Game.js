@@ -215,7 +215,29 @@ module.exports = class Game {
       for(let i = 0; i < this._turnStartingCardCount; ++i) {
         this._drawCardForPlayer(turn.getPlayerId());
       }
+      turn.addTag(Turn.TAG_CARDS_DRAWN);
       turn.nextPhase();
+    }
+  }
+
+  discardCards(cardIds)
+  {
+    const turn = this._turnManager.getTurn();
+    const playerId = turn.getPlayerId();
+    const playerHand = this._playerManager.getPlayerHand(playerId);
+
+    if(turn.getPhase() === Turn.PHASE_DISCARD) {
+      const maxIterations = Math.min(cardIds.length, turn.getCountCardsTooMany());
+      for(let i = 0; i < maxIterations; ++i) {
+        const cardId = cardIds[i];
+        if(playerHand.hasCard(cardId)) {
+          this._discardPile.addCard(playerHand.giveCard(cardId));
+        }
+      }
+
+      if(!turn.shouldDiscardCards()) {
+        turn.nextPhase();
+      }
     }
   }
 

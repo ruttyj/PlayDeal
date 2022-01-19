@@ -11,6 +11,7 @@ module.exports = class PropertySet extends Model {
     super();
     this._code = 'default';
     this._tags = new TagContainer();
+    this._size = 0;
     this._colorCode = null;
     this._rentValues = new Map();
   }
@@ -36,6 +37,16 @@ module.exports = class PropertySet extends Model {
       return this._rentValues.get(cardCount);
     }
     return 0;
+  }
+
+  setSize(size)
+  {
+    this._size  =size;
+  }
+
+  getSize()
+  {
+    return this._size;
   }
   
   setColorCode(colorCode)
