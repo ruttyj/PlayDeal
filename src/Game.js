@@ -99,6 +99,11 @@ module.exports = class Game {
     return this._playerManager.getCollection(collectionId);
   }
 
+  getPropertySet(propertySetId)
+  {
+    return this._cardManager.getPropertySet(propertySetId);
+  }
+
   canStart()
   {
     return !this._hasStarted && !this._hasEnded && this._hasEnoughPeopleToStart();
@@ -376,7 +381,8 @@ module.exports = class Game {
       if(collection.hasCard(cardId) && collection.getPlayerId() === playerId) {
         const newCollection = playerManager.makeNewCollectionForPlayer(playerId);
         newCollection.addCard(collection.giveCard(cardId));
-        this._updateCollectionAndCard(collectionId, cardId);
+
+        this._updateCollectionAndCard(newCollection.getId(), cardId);
         this._cleanUpCollection(collectionId);
       }
     }

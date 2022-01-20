@@ -7,6 +7,7 @@ const Card = require('../../src/card/Card');
 const PropertySet = require('../../src/card/PropertySet');
 
 const runThisTest = true;
+
 const dumpPlayerHand = (game, playerId=1) => {
   console.log(game
     .getPlayerManager()
@@ -15,6 +16,7 @@ const dumpPlayerHand = (game, playerId=1) => {
     .map(c => c.serialize())
   );
 }
+
 const dumpCollection = (game, playerId=1) => {
   console.log(game
     .getCollection(playerId)
@@ -477,6 +479,39 @@ if(runThisTest) {
       assert.equal(collection.isComplete(), true);
       assert.equal(collection.getActiveSet(), 'green');
       assert.equal(JSON.stringify(collection.getAllCardIds()), '[37,3,29]');
+    });
+
+    it('Break a full collection to make another', () => {
+      const game = makePropertyPlusWildGame();
+      game.dealTurnStartingCards();
+
+      // Player 1 playes 2 green cards
+      game.toggleWildCardColorInHand(37);
+      game.playCardToNewCollectionFromHand(37);
+      game.playCardToExistingCollectonFromHand(3, 1);
+      game.tryToPassTurn();
+
+      // Player 2 passes turn
+      game.dealTurnStartingCards();
+      game.tryToPassTurn();
+
+      // Player 1 adds super wild to complete the collection
+      game.dealTurnStartingCards();
+      game.playCardToExistingCollectonFromHand(29, 1);
+
+      // Transfer super wild to new collection
+      game.transferCardToNewCollectionFromCollection(1, 29);
+      const collectionGreen = game.getCollection(1);
+      assert.equal(collectionGreen.isComplete(), false);
+
+      const collectionSuper = game.getCollection(2);
+      assert.equal(collectionGreen.isComplete(), false);
+      assert.equal(collectionSuper.getActiveSet(), PropertySet.AMBIGIOUS_SET);
+
+      // Play Brown wildcard to super wild collection
+      game.playCardToExistingCollectonFromHand(36, 2);
+      assert.equal(collectionSuper.isComplete(), true);
+      assert.equal(collectionSuper.getActiveSet(), 'brown');
     });
     
   });
