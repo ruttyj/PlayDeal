@@ -15,7 +15,6 @@ module.exports = class Collection {
     this._playerId = null;
     this._activeSet = null;
     this._cards = new CardContainer(this._cardManager);
-    this._cardManager = this._cardManager;
   }
 
   setId(id)
@@ -50,7 +49,7 @@ module.exports = class Collection {
 
   getPropertySet()
   {
-    const propertySet = this._cardManager.getPropertySet(this._activeSet)
+    const propertySet = this._cardManager.getPropertySet(this._activeSet);
     return propertySet ? propertySet : null;
   }
 
@@ -139,6 +138,7 @@ module.exports = class Collection {
       id: this._id,
       playerId: this._playerId,
       activeSet: this._activeSet,
+      isComplete: this.isComplete(),
       cards: this._cards.serialize()
     }
   }

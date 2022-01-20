@@ -502,6 +502,11 @@ module.exports = class CardManager  {
     })
   }
 
+  getPropertySet(propertySetId)
+  {
+    return this._propertySets.get(propertySetId);
+  }
+
   _makePropertySet(type=null)
   {
     switch(type)

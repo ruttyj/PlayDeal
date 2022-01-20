@@ -241,6 +241,17 @@ module.exports = class Game {
     }
   }
 
+  tryToPassTurn()
+  {
+    const turnManager = this._turnManager;
+    const turn = turnManager.getTurn();
+    turn.nextPhase();
+
+    if(turn.getPhase() === Turn.PHASE_DONE){
+      turnManager.nextTurn();
+    }
+  }
+
   playCardToBankFromHand(cardId)
   {
     const turn = this._turnManager.getTurn();
@@ -316,7 +327,8 @@ module.exports = class Game {
 
     if(card.hasTag(Card.TAG_PROPERTY) || card.hasTag(Card.TAG_WILD_PROPERTY)) {
       const cardActiveSet = card.getMeta(Card.COMP_ACTIVE_SET);
-      if([null, PropertySet.AMBIGIOUS_SET, cardActiveSet].includes(collection.getActiveSet())) {
+      const isSuperWild = card.hasTag(Card.TAG_SUPERWILD_PROPERTY);
+      if(isSuperWild || [null, PropertySet.AMBIGIOUS_SET, cardActiveSet].includes(collection.getActiveSet())) {
         return true;
       }
     } else if(card.hasTag(Card.TAG_SET_AUGMENT)) {

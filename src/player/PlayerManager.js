@@ -9,6 +9,7 @@ module.exports = class PlayerManager {
   {
     this._players = new AutoIncRepo();
     this._playerCollections = new AutoIncRepo();
+    this._playerCollectionMap = new Map();
     this._playerHands = new Repo();
     this._playerBanks = new Repo();
     this._cardManager = cardManager;
@@ -31,14 +32,23 @@ module.exports = class PlayerManager {
     const playerId = playerModel.getId();
     this._playerHands.set(playerId, new CardContainer(this._cardManager));
     this._playerBanks.set(playerId, new CardContainer(this._cardManager));
-    
+    this._playerCollectionMap.set(playerId, []);
     return playerModel;
   }
 
   makeNewCollectionForPlayer(playerId)
   {
     if(this._players.has(playerId)) {
-      return this._playerCollections.insert(new Collection(playerId, this._cardManager));
+
+      const newModel = this._playerCollections.insert(new Collection(playerId, this._cardManager));
+      const modelId = newModel.getId();
+
+      // Add collection id to list of collections for player
+      const collectionIds = this._playerCollectionMap.get(playerId);
+      collectionIds.push(modelId);
+      this._playerCollectionMap.set(playerId, collectionIds);
+
+      return newModel;
     }
 
     return null;
@@ -49,11 +59,28 @@ module.exports = class PlayerManager {
     return this._playerCollections.get(collectionId);
   }
 
+  getCollectionIdsForPlayer(playerId)
+  {
+    return this._playerCollectionMap.get(playerId);
+  }
+
+  getCollectionsForPlayer(playerId)
+  {
+    return this._playerCollectionMap
+            .get(playerId)
+            .map(collectionId => this.getCollection(collectionId));
+  }
+
   deleteCollection(collectionId)
   {
     const collection = this.getCollection(collectionId);
+    const playerId = collection.getPlayerId();
     if(collection.cardCount() === 0) {
       this._playerCollections.delete(collectionId);
+
+      // remove from player - collection map
+      const playerCollections = this.getCollectionIdsForPlayer(playerId);
+      this._playerCollectionMap.set(playerId, playerCollections.filter(id => id !== collectionId));
     }
   }
 

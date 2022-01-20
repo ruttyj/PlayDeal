@@ -7,6 +7,28 @@ const Card = require('../../src/card/Card');
 const PropertySet = require('../../src/card/PropertySet');
 
 const runThisTest = true;
+const dumpPlayerHand = (game, playerId=1) => {
+  console.log(game
+    .getPlayerManager()
+    .getPlayerHand(playerId)
+    .getAllCards()
+    .map(c => c.serialize())
+  );
+}
+const dumpCollection = (game, playerId=1) => {
+  console.log(game
+    .getCollection(playerId)
+    .serialize()
+  );
+}
+
+const dumpCollectionsForPlayerId = (game, playerId=1) => {
+  console.log(game
+    .getPlayerManager()
+    .getCollectionsForPlayer(playerId)
+    .map(c => c.serialize())
+  );
+}
 
 const log = (item) => {
   console.log(JSON.stringify(item))
@@ -139,7 +161,6 @@ if(runThisTest) {
 
     it('Player 1 attempts to pass turn whith 9 cards in hand should end in discard phase', () => {
       const game = makeCashOnlyGame();
-      const playerManager = game.getPlayerManager();
       const turnManager = game.getTurnManager();
 
       // Player 1 passes turn
@@ -170,7 +191,6 @@ if(runThisTest) {
 
     it('Player 1 attempts to pass turn whith 9 cards in hand should end in discard phase', () => {
       const game = makeCashOnlyGame();
-      const playerManager = game.getPlayerManager();
       const turnManager = game.getTurnManager();
 
       // Player 1 passes turn
@@ -435,20 +455,35 @@ if(runThisTest) {
       assert.equal(collection.getActiveSet(), 'green');
     });
 
-    /*
-    it('', () => {
+    it('Try to make a full set using a super wild as the last card', () => {
       const game = makePropertyPlusWildGame();
-      const playerManager = game.getPlayerManager();
+      const turnManager = game.getTurnManager();
       game.dealTurnStartingCards();
 
       game.toggleWildCardColorInHand(37);
       game.playCardToNewCollectionFromHand(37);
       game.playCardToExistingCollectonFromHand(3, 1);
+      game.tryToPassTurn();
 
+      game.dealTurnStartingCards();
+      game.playCardToNewCollectionFromHand(19);
+      game.playCardToExistingCollectonFromHand(21, 2);
+      game.tryToPassTurn();
+
+      game.dealTurnStartingCards();
+      game.playCardToExistingCollectonFromHand(29, 1);
+
+      const collection = game.getCollection(1);
+      assert.equal(collection.isComplete(), true);
+      assert.equal(collection.getActiveSet(), 'green');
+      assert.equal(JSON.stringify(collection.getAllCardIds()), '[37,3,29]');
     });
-    //*/
     
   });
-    //console.log(playerManager.getPlayerHand(1).getAllCards().map(c => c.serialize()));
-    //console.log(collection.serialize());
+
+  /*
+    const playerId = 1;
+    dumpPlayerHand(game, playerId);
+    dumpCollectionsForPlayerId(game, playerId);
+  //*/
 }
