@@ -457,19 +457,19 @@ if(runThisTest) {
 
     it('Try to make a full set using a super wild as the last card', () => {
       const game = makePropertyPlusWildGame();
-      const turnManager = game.getTurnManager();
       game.dealTurnStartingCards();
 
+      // Player 1 playes 2 green cards
       game.toggleWildCardColorInHand(37);
       game.playCardToNewCollectionFromHand(37);
       game.playCardToExistingCollectonFromHand(3, 1);
       game.tryToPassTurn();
 
+      // Player 2 passes turn
       game.dealTurnStartingCards();
-      game.playCardToNewCollectionFromHand(19);
-      game.playCardToExistingCollectonFromHand(21, 2);
       game.tryToPassTurn();
 
+      // Player 1 adds super wild to complete the collection
       game.dealTurnStartingCards();
       game.playCardToExistingCollectonFromHand(29, 1);
 
