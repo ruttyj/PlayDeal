@@ -44,6 +44,18 @@ const findAllCardsOfSet = (game, propertySet) => {
   });
 };
 
+const clearDeckAndHands = (game) => {
+  const playerManager = game.getPlayerManager();
+  // Clear deck - no player will receive cards upon start of turn
+  const deck = game.getDeck();
+  deck.replaceAllCards([]);
+
+  playerManager.getAllPlayerIds().forEach(playerId => {
+    const playerHand = playerManager.getPlayerHand(playerId);
+    playerHand.replaceAllCards([]);
+  })
+};
+
 const dumpCollectionsForPlayerId = (game, playerId=1) => {
   console.log(game
     .getPlayerManager()
@@ -244,16 +256,12 @@ if(runThisTest) {
     it('Attempt to end the game', () => {
       const game = makePropertyPlusWildGame();
       const playerManager = game.getPlayerManager();
-      const cardManager = game.getCardManager();
 
       // Clear deck - no player will receive cards upon start of turn
-      const deck = game.getDeck();
-      deck.replaceAllCards([]);
       // Clear player hands
       const player1Hand = playerManager.getPlayerHand(1);
-      const player2Hand = playerManager.getPlayerHand(2);
-      player1Hand.replaceAllCards([]);
-      player2Hand.replaceAllCards([]);
+
+      clearDeckAndHands(game);
 
       const passTurn = () => {
         game.dealTurnStartingCards();
