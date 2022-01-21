@@ -173,6 +173,17 @@ module.exports = class CardManager  {
     return this._cards.getAll();
   }
 
+  findCards(fn)
+  {
+    const results = [];
+    this._cards.forEach(card => {
+      if(fn(card)) {
+        results.push(card);
+      }
+    })
+    return results;
+  }
+
   getCard(cardId)
   {
     return this._cards.get(cardId);
@@ -507,6 +518,26 @@ module.exports = class CardManager  {
     return this._propertySets.get(propertySetId);
   }
 
+  getAllPropertySetIds()
+  {
+    let result = [];
+    this._propertySets.forEach((value, key) => {
+      result.push(key);
+    });
+
+    return result;
+  }
+
+  getAllPropertySets()
+  {
+    let result = [];
+    this._propertySets.forEach((value, key) => {
+      result.push(value);
+    });
+
+    return result;
+  }
+
   _makePropertySet(type=null)
   {
     switch(type)
@@ -521,6 +552,7 @@ module.exports = class CardManager  {
   {
     return {
       cards: this._cards.serialize(),
+      propertySets: this.getAllPropertySets().map(p => p.serialize())
     };
   }
 

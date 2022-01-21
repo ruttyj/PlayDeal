@@ -8,6 +8,16 @@ const PropertySet = require('../../src/card/PropertySet');
 
 const runThisTest = true;
 
+const dumpAllPlayers = (game) => {
+  const playerManager = game.getPlayerManager();
+
+  playerManager.getAllPlayerIds().forEach(playerId => {
+    console.log(`Player ${playerId} -----------------`);
+    dumpPlayerHand(game, playerId);
+    dumpCollectionsForPlayerId(game, playerId);
+  })
+}
+
 const dumpPlayerHand = (game, playerId=1) => {
   console.log(game
     .getPlayerManager()
@@ -24,10 +34,20 @@ const dumpCollection = (game, playerId=1) => {
   );
 }
 
+const findAllCardsOfSet = (game, propertySet) => {
+  const cardManager = game.getCardManager();
+  return cardManager.findCards((card) => {
+    if(card.hasMeta(Card.COMP_ACTIVE_SET)){
+      const activeSet = card.getMeta(Card.COMP_ACTIVE_SET);
+      return activeSet === propertySet;
+    }
+  });
+};
+
 const dumpCollectionsForPlayerId = (game, playerId=1) => {
   console.log(game
     .getPlayerManager()
-    .getCollectionsForPlayer(playerId)
+    .getCollectionsForPlayerId(playerId)
     .map(c => c.serialize())
   );
 }
@@ -221,6 +241,65 @@ if(runThisTest) {
       }
     });
 
+    it('Attempt to end the game', () => {
+      const game = makePropertyPlusWildGame();
+      const playerManager = game.getPlayerManager();
+      const cardManager = game.getCardManager();
+
+      // Clear deck - no player will receive cards upon start of turn
+      const deck = game.getDeck();
+      deck.replaceAllCards([]);
+      // Clear player hands
+      const player1Hand = playerManager.getPlayerHand(1);
+      const player2Hand = playerManager.getPlayerHand(2);
+      player1Hand.replaceAllCards([]);
+      player2Hand.replaceAllCards([]);
+
+      const passTurn = () => {
+        game.dealTurnStartingCards();
+        game.tryToPassTurn();
+      }
+
+      // Player 1 - make a green set
+      if(1) {
+        game.dealTurnStartingCards();
+        player1Hand.addCards([3, 4, 5]);
+        const collectionId = 1;
+        game.playCardToNewCollectionFromHand(3);
+        game.playCardToExistingCollectonFromHand(4, collectionId);
+        game.playCardToExistingCollectonFromHand(5, collectionId);
+        game.tryToPassTurn();
+      }
+
+      // Player 2 pass turn
+      passTurn();
+
+      // Player 1 - make blue set
+      if(1) {
+        game.dealTurnStartingCards();
+        player1Hand.addCards([1, 2]);
+        const collectionId = 2;
+        game.playCardToNewCollectionFromHand(1);
+        game.playCardToExistingCollectonFromHand(2, collectionId);
+        game.tryToPassTurn();
+      }
+
+      // Player 2 pass turn
+      passTurn();
+
+      // Player 1 - make brown set
+      if(1) {
+        game.dealTurnStartingCards();
+        const collectionId = 3;
+        player1Hand.addCards([27, 28]);
+        game.playCardToNewCollectionFromHand(27);
+        game.playCardToExistingCollectonFromHand(28, collectionId);
+      }
+
+      // Game over
+      assert.equal(game.isGameOver(), true);
+      assert.equal(game.getWinner().getId(), 1);
+    });
   });
 
   describe("Bank", () => {
@@ -520,5 +599,8 @@ if(runThisTest) {
     const playerId = 1;
     dumpPlayerHand(game, playerId);
     dumpCollectionsForPlayerId(game, playerId);
+
+    console.log(findAllCardsOfSet(game, 'green'));
+    dumpAllPlayers(game);
   //*/
 }

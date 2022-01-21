@@ -85,6 +85,11 @@ module.exports = class AutoIncRepo {
     return result;
   }
 
+  forEach(fn)
+  {
+    this._items.forEach(fn);
+  }
+
   has(key)
   {
     return this._items.has(key);

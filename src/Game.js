@@ -32,6 +32,7 @@ module.exports = class Game {
     this._turnStartingCardCount = 2; // number of cards to be collected on turn start
     this._maxCardsInHand = 7; // max cards in hand at end of turn
 
+    this._winner = null;
     this._hasStarted = false;
     this._hasEnded = false;
   }
@@ -104,6 +105,11 @@ module.exports = class Game {
     return this._cardManager.getPropertySet(propertySetId);
   }
 
+  getTurn()
+  {
+    return this._turnManager.getTurn();
+  }
+
   canStart()
   {
     return !this._hasStarted && !this._hasEnded && this._hasEnoughPeopleToStart();
@@ -153,6 +159,11 @@ module.exports = class Game {
     }
 
     this._cardManager.setup(cardLoadout);
+  }
+
+  getCardManager()
+  {
+    return this._cardManager;
   }
 
   _generateDeck()
@@ -368,6 +379,41 @@ module.exports = class Game {
         }
       }
     }
+
+    // Check if win condition
+    const playerId = collection.getPlayerId();
+    if(this._checkDoesPlayerWin(playerId)) {
+      this._onPlayerWin(playerId);
+    }
+  }
+
+  _checkDoesPlayerWin(playerId)
+  {
+    const playerManager = this._playerManager;
+    let fullCollectionKeys = new Map();
+    playerManager.getCollectionsForPlayerId(playerId)
+      .forEach(collection => {
+        if(collection.isComplete()) {
+          fullCollectionKeys.set(collection.getActiveSet(), true);
+        }
+      });
+
+    return fullCollectionKeys.size >= 3;
+  }
+
+  _onPlayerWin(playerId)
+  {
+    this._hasEnded = true;
+    this._winner = playerId;
+  }
+
+  getWinner()
+  {
+    if(this._winner) {
+      const playerManager = this.getPlayerManager();
+      return playerManager.getPlayer(this._winner);
+    }
+    return null;
   }
 
   transferCardToNewCollectionFromCollection(collectionId, cardId)
@@ -466,6 +512,11 @@ module.exports = class Game {
   decode(data)
   {
     return data;
+  }
+
+  isGameOver()
+  {
+    return this._hasEnded;
   }
 
   serialize()

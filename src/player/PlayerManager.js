@@ -59,12 +59,12 @@ module.exports = class PlayerManager {
     return this._playerCollections.get(collectionId);
   }
 
-  getCollectionIdsForPlayer(playerId)
+  getCollectionIdsForPlayerId(playerId)
   {
     return this._playerCollectionMap.get(playerId);
   }
 
-  getCollectionsForPlayer(playerId)
+  getCollectionsForPlayerId(playerId)
   {
     return this._playerCollectionMap
             .get(playerId)
@@ -79,7 +79,7 @@ module.exports = class PlayerManager {
       this._playerCollections.delete(collectionId);
 
       // remove from player - collection map
-      const playerCollections = this.getCollectionIdsForPlayer(playerId);
+      const playerCollections = this.getCollectionIdsForPlayerId(playerId);
       this._playerCollectionMap.set(playerId, playerCollections.filter(id => id !== collectionId));
     }
   }
