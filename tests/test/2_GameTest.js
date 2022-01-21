@@ -94,7 +94,6 @@ const makePropertyOnlyGame = () => {
   return game;
 }
 
-
 const makePropertyPlusWildGame = () => {
   const game = new Game();
   game.setSeed('test');
@@ -108,9 +107,8 @@ const makePropertyPlusWildGame = () => {
   return game;
 }
 
-
 if(runThisTest) {
-  describe("Game Start", () => {
+  describe('Game Start', () => {
     it('Should deal 5 cards to each player', () => {
       const game = makeCashOnlyGame();
       const deck = game.getDeck();
@@ -131,7 +129,7 @@ if(runThisTest) {
 
   });
 
-  describe("Turn and Phase", () => {
+  describe('Turn and Phase', () => {
 
     it('Deal turn starting cards', () => {
       const game = makeCashOnlyGame();
@@ -315,7 +313,7 @@ if(runThisTest) {
     });
   });
 
-  describe("Bank", () => {
+  describe('Bank', () => {
     it('Place card in bank from hand', () => {
       const game = makeCashOnlyGame();
       const turnManager = game.getTurnManager();
@@ -360,7 +358,7 @@ if(runThisTest) {
   });
 
 
-  describe("Plain Collections", () => {
+  describe('Plain Collections', () => {
     it('Should be able to create a collection with two cards of the same property set', () => {
       const game = makePropertyOnlyGame();
       const turnManager = game.getTurnManager();
@@ -432,7 +430,7 @@ if(runThisTest) {
     });
   });
 
-  describe("Collections with wildcards", () => {
+  describe('Collections with wildcards', () => {
     it('Wild cards should be generated', () => {
       const game = makePropertyPlusWildGame();
       game.dealTurnStartingCards();
@@ -607,6 +605,14 @@ if(runThisTest) {
     });
     
   });
+
+  /*
+  describe('Requests', () => {
+    it('should charge rent', () => {
+
+    })
+  });
+  //*/
 
   /*
     const playerId = 1;

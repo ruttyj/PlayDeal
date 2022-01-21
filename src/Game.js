@@ -8,8 +8,8 @@ const Turn = require(srcPath + '/turn/Turn');
 const Card = require(srcPath + '/card/Card');
 const PropertySet = require(srcPath + '/card/PropertySet');
 
-module.exports = class Game {
-
+module.exports = class Game 
+{
   static SCENARIO_CASH_ONLY = 'cashOnly';
   static SCENARIO_PROPERTY_ONLY = 'propertyOnly';
   static SCENARIO_PROPERTY_PLUS_WILD = 'propertyPlusWild';
@@ -120,6 +120,11 @@ module.exports = class Game {
     return this._minPlayerLimit <= this.getPlayerCount();
   }
 
+  getMaxCardsInHand()
+  {
+    return this._maxCardsInHand;
+  }
+
   start()
   {
     // Setup managers
@@ -166,6 +171,12 @@ module.exports = class Game {
     return this._cardManager;
   }
 
+
+  //===============================================
+
+  //                DECK / PILES
+
+  //===============================================
   _generateDeck()
   {
     const cards = this._cardManager.getAllCards();
@@ -224,102 +235,13 @@ module.exports = class Game {
     }
   }
 
-  dealTurnStartingCards()
-  {
-    const turn = this._turnManager.getTurn();
-    if(turn.getPhase() === Turn.PHASE_DRAW) {
-      for(let i = 0; i < this._turnStartingCardCount; ++i) {
-        this._drawCardForPlayer(turn.getPlayerId());
-      }
-      turn.addTag(Turn.TAG_CARDS_DRAWN);
-      turn.nextPhase();
-    }
-  }
 
-  discardCards(cardIds)
-  {
-    const turn = this._turnManager.getTurn();
-    const playerId = turn.getPlayerId();
-    const playerHand = this._playerManager.getPlayerHand(playerId);
+  //===============================================
 
-    if(turn.getPhase() === Turn.PHASE_DISCARD) {
-      const maxIterations = Math.min(cardIds.length, turn.getCountCardsTooMany());
-      for(let i = 0; i < maxIterations; ++i) {
-        const cardId = cardIds[i];
-        if(playerHand.hasCard(cardId)) {
-          this._discardPile.addCard(playerHand.giveCard(cardId));
-        }
-      }
+  //             COLLECTION OVERHEAD
 
-      if(!turn.shouldDiscardCards()) {
-        turn.nextPhase();
-      }
-    }
-  }
-
-  tryToPassTurn()
-  {
-    const turnManager = this._turnManager;
-    const turn = turnManager.getTurn();
-    turn.nextPhase();
-
-    if(turn.getPhase() === Turn.PHASE_DONE) {
-      turnManager.nextTurn();
-    }
-  }
-
-  playCardToBankFromHand(cardId)
-  {
-    const turn = this._turnManager.getTurn();
-    if(turn.isWithinActionLimit()) {
-      const playerManager = this._playerManager;
-      const playerId = turn.getPlayerId();
-      const playerHand = playerManager.getPlayerHand(playerId);
-      const playerBank = playerManager.getPlayerBank(playerId);
-      if(playerHand.hasCard(cardId)) {
-        playerBank.addCard(playerHand.giveCard(cardId));
-        turn.consumeAction();
-      }
-    }
-  }
-
-  playCardToNewCollectionFromHand(cardId)
-  {
-    const turn = this._turnManager.getTurn();
-    if(turn.getPhase() === Turn.PHASE_ACTION && turn.isWithinActionLimit()) {
-      const playerManager = this._playerManager;
-      const playerId = turn.getPlayerId();
-      const playerHand = playerManager.getPlayerHand(playerId);
-
-      if(playerHand.hasCard(cardId)) {
-        const newCollection = playerManager.makeNewCollectionForPlayer(playerId);
-        newCollection.addCard(playerHand.giveCard(cardId));
-        this._updateCollectionAndCard(newCollection.getId(), cardId);
-        turn.consumeAction();
-      }
-    }
-  }
-
-  playCardToExistingCollectonFromHand(cardId, collectionId)
-  {
-    const turn = this._turnManager.getTurn();
-    if(turn.getPhase() === Turn.PHASE_ACTION && turn.isWithinActionLimit()) {
-      const playerManager = this._playerManager;
-      const playerId = turn.getPlayerId();
-      const playerHand = playerManager.getPlayerHand(playerId);
-
-      if(playerHand.hasCard(cardId)) {
-        const collection = playerManager.getCollection(collectionId);
-        if(collection && collection.getPlayerId() === playerId) {
-          if(this._canAddCardToCollection(cardId, collectionId)) {
-            collection.addCard(playerHand.giveCard(cardId));
-            this._updateCollectionAndCard(collection.getId(), cardId);
-            turn.consumeAction();
-          }
-        }
-      }
-    }
-  }
+  //===============================================
+  // @TODO refactor
 
   _cleanUpCollection(collectionId)
   {
@@ -387,6 +309,12 @@ module.exports = class Game {
     }
   }
 
+  //===============================================
+
+  //                WIN CONDITION
+
+  //===============================================
+
   _checkDoesPlayerWin(playerId)
   {
     const playerManager = this._playerManager;
@@ -415,6 +343,123 @@ module.exports = class Game {
     }
     return null;
   }
+
+  //===============================================
+
+  //                TURN / PHASE
+
+  //===============================================
+
+  dealTurnStartingCards()
+  {
+    const turn = this._turnManager.getTurn();
+    if(turn.getPhase() === Turn.PHASE_DRAW) {
+      for(let i = 0; i < this._turnStartingCardCount; ++i) {
+        this._drawCardForPlayer(turn.getPlayerId());
+      }
+      turn.addTag(Turn.TAG_CARDS_DRAWN);
+      turn.nextPhase();
+    }
+  }
+
+  discardCards(cardIds)
+  {
+    const turn = this._turnManager.getTurn();
+    const playerId = turn.getPlayerId();
+    const playerHand = this._playerManager.getPlayerHand(playerId);
+
+    if(turn.getPhase() === Turn.PHASE_DISCARD) {
+      const maxIterations = Math.min(cardIds.length, turn.getCountCardsTooMany());
+      for(let i = 0; i < maxIterations; ++i) {
+        const cardId = cardIds[i];
+        if(playerHand.hasCard(cardId)) {
+          this._discardPile.addCard(playerHand.giveCard(cardId));
+        }
+      }
+
+      if(!turn.shouldDiscardCards()) {
+        turn.nextPhase();
+      }
+    }
+  }
+
+  tryToPassTurn()
+  {
+    const turnManager = this._turnManager;
+    const turn = turnManager.getTurn();
+    turn.nextPhase();
+
+    if(turn.getPhase() === Turn.PHASE_DONE) {
+      turnManager.nextTurn();
+    }
+  }
+
+  //===============================================
+
+  //            PLAY CARD FROM HAND
+
+  //===============================================
+
+  playCardToBankFromHand(cardId)
+  {
+    const turn = this._turnManager.getTurn();
+    if(turn.isWithinActionLimit()) {
+      const playerManager = this._playerManager;
+      const playerId = turn.getPlayerId();
+      const playerHand = playerManager.getPlayerHand(playerId);
+      const playerBank = playerManager.getPlayerBank(playerId);
+      if(playerHand.hasCard(cardId)) {
+        playerBank.addCard(playerHand.giveCard(cardId));
+        turn.consumeAction();
+      }
+    }
+  }
+
+  playCardToNewCollectionFromHand(cardId)
+  {
+    const turn = this._turnManager.getTurn();
+    if(turn.getPhase() === Turn.PHASE_ACTION && turn.isWithinActionLimit()) {
+      const playerManager = this._playerManager;
+      const playerId = turn.getPlayerId();
+      const playerHand = playerManager.getPlayerHand(playerId);
+
+      if(playerHand.hasCard(cardId)) {
+        const newCollection = playerManager.makeNewCollectionForPlayer(playerId);
+        newCollection.addCard(playerHand.giveCard(cardId));
+        this._updateCollectionAndCard(newCollection.getId(), cardId);
+        turn.consumeAction();
+      }
+    }
+  }
+
+  playCardToExistingCollectonFromHand(cardId, collectionId)
+  {
+    const turn = this._turnManager.getTurn();
+    if(turn.getPhase() === Turn.PHASE_ACTION && turn.isWithinActionLimit()) {
+      const playerManager = this._playerManager;
+      const playerId = turn.getPlayerId();
+      const playerHand = playerManager.getPlayerHand(playerId);
+
+      if(playerHand.hasCard(cardId)) {
+        const collection = playerManager.getCollection(collectionId);
+        if(collection && collection.getPlayerId() === playerId) {
+          if(this._canAddCardToCollection(cardId, collectionId)) {
+            collection.addCard(playerHand.giveCard(cardId));
+            this._updateCollectionAndCard(collection.getId(), cardId);
+            turn.consumeAction();
+          }
+        }
+      }
+    }
+  }
+
+
+
+  //===============================================
+
+  //         TRANSFER BETWEEN COLLECTIONS
+
+  //===============================================
 
   transferCardToNewCollectionFromCollection(collectionId, cardId)
   {
@@ -455,6 +500,13 @@ module.exports = class Game {
       }
     }
   }
+
+
+  //===============================================
+
+  //              TOGGLE WILDCARDS
+
+  //===============================================
 
   toggleWildCardColorInCollection(cardId, collectionId)
   {
@@ -499,10 +551,13 @@ module.exports = class Game {
     }
   }
 
-  getMaxCardsInHand()
-  {
-    return this._maxCardsInHand;
-  }
+
+
+  //===============================================
+
+  //                  SERIALIZE
+
+  //===============================================
 
   encode(data)
   {

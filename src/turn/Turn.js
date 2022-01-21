@@ -1,4 +1,5 @@
 const TagContainer = require('../card/TagContainer');
+const RequestManager = require('../turn/request/Request');
 
 module.exports = class Turn {
   static PHASE_DRAW = 'draw';
@@ -23,6 +24,7 @@ module.exports = class Turn {
     this._playerId = playerId;
     this._phase = Turn.PHASE_DRAW;
     this._tags = new TagContainer();
+    this._requestManager = new RequestManager(game);
     this._actionLimit = 3;
     this._actionCount = 0;
   }
