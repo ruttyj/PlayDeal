@@ -263,7 +263,7 @@ module.exports = class Game {
     const turn = turnManager.getTurn();
     turn.nextPhase();
 
-    if(turn.getPhase() === Turn.PHASE_DONE){
+    if(turn.getPhase() === Turn.PHASE_DONE) {
       turnManager.nextTurn();
     }
   }

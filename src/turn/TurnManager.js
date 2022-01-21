@@ -33,7 +33,7 @@ module.exports = class TurnManager {
 
   nextTurn()
   {
-    if(this._currentTurn.getPhase() === Turn.PHASE_DONE) {
+    if(!this._game.isGameOver() && this._currentTurn.getPhase() === Turn.PHASE_DONE) {
       this._incPlayerIndex();
       this._newTurn();
     }

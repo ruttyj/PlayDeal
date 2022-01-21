@@ -297,8 +297,13 @@ if(runThisTest) {
       }
 
       // Game over
+      assert.equal(game.getTurn().getPlayerId(), 1);
       assert.equal(game.isGameOver(), true);
       assert.equal(game.getWinner().getId(), 1);
+
+      // should not be able to pass turn after it ended
+      game.tryToPassTurn();
+      assert.equal(game.getTurn().getPlayerId(), 1);
     });
   });
 
