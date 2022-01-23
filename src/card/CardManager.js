@@ -9,6 +9,7 @@ module.exports = class CardManager  {
 
   static SCENARIO_CASH_ONLY = 'cashOnly';
   static SCENARIO_PROPERTY_ONLY = 'propertyOnly';
+  static SCENARIO_PROPERTY_CASH = 'propertyCash';
   static SCENARIO_PROPERTY_PLUS_WILD = 'propertyPlusWild';
   static SCENARIO_DEFAULT = 'default';
 
@@ -32,9 +33,15 @@ module.exports = class CardManager  {
         this._cashOnlyCards();
         break;
 
+      case CardManager.SCENARIO_PROPERTY_CASH:
+        this._cashOnlyCards();
+        this._propertyOnlyCards();
+        break;
+
       case CardManager.SCENARIO_PROPERTY_ONLY:
         this._propertyOnlyCards();
         break;
+
       case CardManager.SCENARIO_PROPERTY_PLUS_WILD:
         this._propertyOnlyCards();
         this._wildPropertyCards();

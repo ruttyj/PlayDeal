@@ -355,6 +355,20 @@ if(runThisTest) {
       assert.equal(turn.getPlayerId(), 1);
       assert.equal(turn.getPhase(), Turn.PHASE_DONE);
     });
+
+    it('Place card in bank from hand', () => {
+      const game = new Game();
+      game.setSeed('test');
+      game.setScenario(Game.SCENARIO_PROPERTY_CASH);
+
+      game.addPlayer();
+      game.addPlayer();
+
+      game.start();
+
+
+
+    });
   });
 
 

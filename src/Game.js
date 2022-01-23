@@ -7,12 +7,15 @@ const CardContainer = require(srcPath + '/card/CardContainer');
 const Turn = require(srcPath + '/turn/Turn');
 const Card = require(srcPath + '/card/Card');
 const PropertySet = require(srcPath + '/card/PropertySet');
-
+/**
+ * PlayDeal
+ */
 module.exports = class Game 
 {
   static SCENARIO_CASH_ONLY = 'cashOnly';
   static SCENARIO_PROPERTY_ONLY = 'propertyOnly';
   static SCENARIO_PROPERTY_PLUS_WILD = 'propertyPlusWild';
+  static SCENARIO_PROPERTY_CASH = 'propertyCash';
   static SCENARIO_DEFAULT = 'default';
 
   constructor()
@@ -150,6 +153,9 @@ module.exports = class Game
         cardLoadout = CardManager.SCENARIO_CASH_ONLY;
         break
 
+      case Game.SCENARIO_PROPERTY_CASH:
+        cardLoadout = CardManager.SCENARIO_PROPERTY_CASH;
+        break;
       case Game.SCENARIO_PROPERTY_ONLY:
         cardLoadout = CardManager.SCENARIO_PROPERTY_ONLY;
         break;
@@ -338,8 +344,7 @@ module.exports = class Game
   getWinner()
   {
     if(this._winner) {
-      const playerManager = this.getPlayerManager();
-      return playerManager.getPlayer(this._winner);
+      return this._playerManager.getPlayer(this._winner);
     }
     return null;
   }
@@ -408,7 +413,7 @@ module.exports = class Game
       const playerId = turn.getPlayerId();
       const playerHand = playerManager.getPlayerHand(playerId);
       const playerBank = playerManager.getPlayerBank(playerId);
-      if(playerHand.hasCard(cardId)) {
+      if(playerHand.hasCard(cardId) && playerHand.getCard(cardId).hasTag(Card.TAG_BANKABLE)) {
         playerBank.addCard(playerHand.giveCard(cardId));
         turn.consumeAction();
       }
