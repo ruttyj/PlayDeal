@@ -33,4 +33,5 @@ This game will be compatible with free Heroku hosting.
 # To Run Tests
 
     cd tests
+    npm install
     npm test
