@@ -7,6 +7,8 @@ const CardContainer = require(srcPath + '/card/CardContainer');
 const Turn = require(srcPath + '/turn/Turn');
 const Card = require(srcPath + '/card/Card');
 const PropertySet = require(srcPath + '/card/PropertySet');
+const RequestValue = require('./turn/request/types/RequestValue');
+
 /**
  * PlayDeal
  */
@@ -16,6 +18,7 @@ module.exports = class Game
   static SCENARIO_PROPERTY_ONLY = 'propertyOnly';
   static SCENARIO_PROPERTY_PLUS_WILD = 'propertyPlusWild';
   static SCENARIO_PROPERTY_CASH = 'propertyCash';
+  static SCENARIO_PROPERTY_WILD_CASH_ACTION = 'propertyWildCashAction';
   static SCENARIO_DEFAULT = 'default';
 
   constructor()
@@ -48,6 +51,11 @@ module.exports = class Game
   getTurnManager()
   {
     return this._turnManager;
+  }
+
+  getRequestManager()
+  {
+    return this.getTurn().getRequestManager();
   }
 
   setSeed(seed)
@@ -149,19 +157,29 @@ module.exports = class Game
 
     switch(this._scenario)
     {
+      // CASH
       case Game.SCENARIO_CASH_ONLY:
         cardLoadout = CardManager.SCENARIO_CASH_ONLY;
         break
 
+      // PROPERTY + CASH
       case Game.SCENARIO_PROPERTY_CASH:
         cardLoadout = CardManager.SCENARIO_PROPERTY_CASH;
         break;
+      
+      // PROPERTY
       case Game.SCENARIO_PROPERTY_ONLY:
         cardLoadout = CardManager.SCENARIO_PROPERTY_ONLY;
         break;
       
+      // PROPERTY + WILD
       case Game.SCENARIO_PROPERTY_PLUS_WILD:
         cardLoadout = CardManager.SCENARIO_PROPERTY_PLUS_WILD;
+        break;
+
+      // PROPERTY + WILD + CASH + ACTION
+      case Game.SCENARIO_PROPERTY_WILD_CASH_ACTION:
+        cardLoadout = CardManager.SCENARIO_PROPERTY_WILD_CASH_ACTION;
         break;
 
       case Game.SCENARIO_DEFAULT:
@@ -283,35 +301,14 @@ module.exports = class Game
   // makes sure the card and collection are the same property set
   _updateCollectionAndCard(collectionId, cardId)
   {
-    const playerManager = this._playerManager;
-    const cardManager = this._cardManager;
-
-    const card = cardManager.getCard(cardId);
+    const game = this;
+    const playerManager = game.getPlayerManager();
     const collection = playerManager.getCollection(collectionId);
-    const collectionActiveSet = collection.getActiveSet();
-
-    let applyCardSetToCollection = false;
-    if(card.hasTag(Card.TAG_WILD_PROPERTY)) {
-      applyCardSetToCollection = true;
-    } else if(card.hasTag(Card.TAG_PROPERTY)) {
-      applyCardSetToCollection = true;
-    }
-
-    if(applyCardSetToCollection) {
-      // if collection is ambigious or undefined
-      if([null, PropertySet.AMBIGIOUS_SET].includes(collectionActiveSet)) {
-        // get active property set from card
-        const activeSet = card.getMeta(Card.COMP_ACTIVE_SET);
-        if(activeSet) {
-          collection.setActiveSet(activeSet);
-        }
-      }
-    }
 
     // Check if win condition
     const playerId = collection.getPlayerId();
-    if(this._checkDoesPlayerWin(playerId)) {
-      this._onPlayerWin(playerId);
+    if(game._checkDoesPlayerWin(playerId)) {
+      game._onPlayerWin(playerId);
     }
   }
 
@@ -515,7 +512,7 @@ module.exports = class Game
 
   toggleWildCardColorInCollection(cardId, collectionId)
   {
-    const turn = this._turnManager.getTurn();
+    const turn = this.getTurn();
     const playerManager = this._playerManager;
     const playerId = turn.getPlayerId();
 
@@ -538,7 +535,7 @@ module.exports = class Game
 
   toggleWildCardColorInHand(cardId)
   {
-    const turn = this._turnManager.getTurn();
+    const turn = this.getTurn();
     const playerManager = this._playerManager;
     const playerId = turn.getPlayerId();
     const playerHand = playerManager.getPlayerHand(playerId);
@@ -556,6 +553,63 @@ module.exports = class Game
     }
   }
 
+
+  //===============================================
+
+  //                ACTION CARDS
+
+  //===============================================
+  chargeRentForCollection(collectionId, cardId, targetPlayerId = null)
+  {
+    const playerManager = this._playerManager;
+    const turn = this.getTurn();
+    const playerId = turn.getPlayerId();
+    const collection = this.getCollection(collectionId);
+    const playerHand = playerManager.getPlayerHand(playerId);
+
+    // derp? not suppose to happen
+    if(targetPlayerId === playerId) {
+      return null;
+    }
+
+    // col
+    if(playerHand.hasCard(cardId) && playerId === collection.getPlayerId()){
+      const activeSet = collection.getActiveSet();
+      if(![PropertySet.AMBIGIOUS_SET, PropertySet.USELESS_SET].includes(activeSet)){
+        
+        // Play card to active pile
+        this.getActivePile().addCard(playerHand.giveCard(cardId));
+        turn.consumeAction();
+
+        // Target players
+        const targetCase = 'all'; // @TODO not suppose to be hard coded
+        let targetPlayers = [];
+        switch(targetCase)
+        {
+          case 'all': // target everyone else
+            targetPlayers = playerManager.filter((player) => player.getId() !== playerId);
+            break;
+          case 'one': // target one person
+            targetPlayers = [playerManager.getPlayer(targetPlayerId)];
+            break;
+          default:
+            throw 'undefined target';
+        }
+
+        // Create requests
+        const rentValue = collection.calculateRent();
+        const requestManager = this.getRequestManager();
+        targetPlayers.forEach((targetPlayer) => {
+          const newRequest = new RequestValue();
+          newRequest.setAuthor(playerId);
+          newRequest.setTarget(targetPlayer.getId());
+          newRequest.setValue(rentValue);
+
+          const insertedRequest = requestManager.addRequest(newRequest);
+        })
+      }
+    }
+  }
 
 
   //===============================================
@@ -589,7 +643,7 @@ module.exports = class Game
     };
     result.players = this._playerManager.serialize();
     result.turn = this._turnManager.serialize();
-    //result.cards = this._cardManager.serialize(); // @TODO uncomment
+    result.cards = this._cardManager.serialize();
 
     return this.encode(result);
   }
@@ -604,6 +658,6 @@ module.exports = class Game
     this._minPlayerLimit = data.minPlayerLimit;
     this._playerManager.unserialzie(data.players);
     this._turnManager.unserialzie(data.turn);
-    //this._cardManager.unserialzie(data.cards); // @TODO uncomment
+    this._cardManager.unserialzie(data.cards);
   }
 }

@@ -127,6 +127,21 @@ module.exports = class PlayerManager {
     }
   }
 
+  filter(fn)
+  {
+    let result = [];
+
+    this._players
+      .getAll()
+      .forEach((v) => {
+        if(fn(v)) {
+          result.push(v);
+        }
+      });
+
+    return result;
+  }
+
   serialize()
   {
     return {

@@ -11,6 +11,7 @@ module.exports = class CardManager  {
   static SCENARIO_PROPERTY_ONLY = 'propertyOnly';
   static SCENARIO_PROPERTY_CASH = 'propertyCash';
   static SCENARIO_PROPERTY_PLUS_WILD = 'propertyPlusWild';
+  static SCENARIO_PROPERTY_WILD_CASH_ACTION = 'propertyWildCashAction';
   static SCENARIO_DEFAULT = 'default';
 
   constructor()
@@ -45,6 +46,13 @@ module.exports = class CardManager  {
       case CardManager.SCENARIO_PROPERTY_PLUS_WILD:
         this._propertyOnlyCards();
         this._wildPropertyCards();
+        break;
+
+      case CardManager.SCENARIO_PROPERTY_WILD_CASH_ACTION:
+        this._propertyOnlyCards();
+        this._wildPropertyCards();
+        this._cashOnlyCards();
+        this._actionCards();
         break;
         
       case CardManager.SCENARIO_DEFAULT:
@@ -175,6 +183,30 @@ module.exports = class CardManager  {
 
   }
   
+  _actionCards()
+  {
+    const cardCounts = new Map();
+
+    cardCounts.set('DRAW_CARDS', 10);
+    cardCounts.set('DEAL_BREAKER', 2);
+    cardCounts.set('STEAL_PROPERTY', 3);
+    cardCounts.set('SWAP_PROPERTY', 3);
+    cardCounts.set('DEBT_COLLECTOR', 3);
+    cardCounts.set('BIRTHDAY', 3);
+    cardCounts.set('NOPE', 3);
+    cardCounts.set('DOUBLE_THE_RENT', 2);
+    cardCounts.set('HOUSE', 3);
+    cardCounts.set('HOTEL', 2);
+    cardCounts.set('SUPER_RENT', 3);
+    cardCounts.set('RENT_BLUE_GREEN', 2);
+    cardCounts.set('RENT_ORANGE_PURPLE', 2);
+    cardCounts.set('RENT_BLACK_PINK', 2);
+    cardCounts.set('RENT_YELLOW_ORANGE', 2);
+    cardCounts.set('RENT_BROWN_CYAN', 2);
+
+    this._generateCards(cardCounts);
+  }
+
   getAllCards()
   {
     return this._cards.getAll();

@@ -1,5 +1,5 @@
 const TagContainer = require('../card/TagContainer');
-const RequestManager = require('../turn/request/Request');
+const RequestManager = require('../turn/request/RequestManager');
 
 module.exports = class Turn {
   static PHASE_DRAW = 'draw';
@@ -64,6 +64,12 @@ module.exports = class Turn {
   removeTag(tag)
   {
     this._tags.remove(tag);
+  }
+
+  // Lazy way of clearing the request manager every turn
+  getRequestManager()
+  {
+    return this._requestManager;
   }
 
   getActionLimit()

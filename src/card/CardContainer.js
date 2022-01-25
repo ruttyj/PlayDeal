@@ -35,6 +35,8 @@ module.exports = class CardContainer {
     } catch {
       console.log('No card manager defined');
     }
+
+    return this;
   }
 
   addCards(cardOrCards)
@@ -47,6 +49,8 @@ module.exports = class CardContainer {
     else {
       this.addCard(cardOrCards);
     }
+
+    return this;
   }
 
   hasCard(cardOrId)

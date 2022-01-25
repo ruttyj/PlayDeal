@@ -1,5 +1,6 @@
 const CardContainer = require('./CardContainer');
 const Card = require('./Card');
+const PropertySet = require('./PropertySet');
 
 module.exports = class Collection {
   constructor(playerId, cardManager)
@@ -66,11 +67,37 @@ module.exports = class Collection {
   addCard(cardOrId)
   {
     this._cards.addCard(cardOrId);
+
+    const collection = this;
+    const card = this.getCard(cardOrId);
+    const collectionActiveSet = collection.getActiveSet();
+
+    let applyCardSetToCollection = false;
+    if(card.hasTag(Card.TAG_WILD_PROPERTY)) {
+      applyCardSetToCollection = true;
+    } else if(card.hasTag(Card.TAG_PROPERTY)) {
+      applyCardSetToCollection = true;
+    }
+
+    if(applyCardSetToCollection) {
+      // if collection is ambigious or undefined
+      if([null, PropertySet.AMBIGIOUS_SET].includes(collectionActiveSet)) {
+        // get active property set from card
+        const activeSet = card.getMeta(Card.COMP_ACTIVE_SET);
+        if(activeSet) {
+          collection.setActiveSet(activeSet);
+        }
+      }
+    }
+
+    return this;
   }
 
   addCards(cardOrCards)
   {
-    this._cards.addCards(cardOrCards);
+    this.addCards(cardOrCards);
+
+    return this;
   }
 
   hasCard(cardOrId)
@@ -96,6 +123,21 @@ module.exports = class Collection {
   getCards(cardsOrIds)
   {
     return this._cards.getCards(cardsOrIds);
+  }
+
+  getAugmentCards()
+  {
+    return this.findCards(card => card.hasTag(Card.TAG_SET_AUGMENT));
+  }
+
+  getPropertyCards()
+  {
+    return this.findCards(card => card.hasTag(Card.TAG_PROPERTY));
+  }
+
+  getPropertyCardCount()
+  {
+    return this.getPropertyCards().length;
   }
 
   cardCount()
@@ -124,12 +166,30 @@ module.exports = class Collection {
     this._cards.replaceAllCards(newCards);
   }
 
-  findCard(fn) {
+  findCard(fn)
+  {
     return this._cards.findCard(fn);
   }
 
-  findCards(fn) {
+  findCards(fn)
+  {
     return this._cards.findCards(fn);
+  }
+
+  calculateRent()
+  {
+    let result;
+
+
+    const propertyCount = this.getPropertyCardCount();
+    const propertySet = this.getPropertySet();
+    const baseRentValue = propertySet.getRentValue(propertyCount);
+    result = baseRentValue;
+
+    // @TODO
+    //const augments = this.getAugmentCards();
+
+    return result;
   }
 
   serialize()

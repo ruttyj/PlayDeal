@@ -117,28 +117,6 @@ module.exports = class CardFactory {
         });
 
         return card;
-      case 'DOUBLE_THE_RENT':
-        card.setType(Card.TYPE_ACTION);
-        card.setKey(cardKey);
-        card.setValue(1);
-        card.addTags([
-          Card.TAG_RENT_AUGMENT,
-          Card.TAG_CONTESTABLE,
-          Card.TAG_BANKABLE
-        ]);
-        card.addMeta(Card.COMP_COLLECT_VALUE_AUGMENT, {
-          affects: {
-            multiply: 2,
-          },
-          requires: {
-            actionCard: {
-              withTags: [Card.TAG_RENT],
-              withoutTags: [],
-            },
-          },
-        });
-
-        return card;
       case 'HOUSE':
         card.setType(Card.TYPE_ACTION);
         card.setKey(cardKey);
@@ -295,15 +273,14 @@ module.exports = class CardFactory {
     return null;
   }
 
-  
-
   _makeCashCard(value)
   {
     const card = new Card();
     card.setType(Card.TYPE_CASH);
     card.setValue(value);
     card.addTags([
-      Card.TAG_BANKABLE
+      Card.TAG_BANKABLE,
+      Card.TAG_CASH,
     ]);
     return card;
   }

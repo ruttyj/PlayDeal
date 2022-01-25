@@ -10,6 +10,7 @@ module.exports = class Card extends Model {
 
   static TAG_DRAW = 'draw';
   static TAG_BANKABLE = 'bankable';
+  static TAG_CASH = 'cash';
   static TAG_REQUEST = 'request';
   static TAG_COLLECT_VALUE = 'collectValue';
   static TAG_CONTESTABLE = 'contestable';

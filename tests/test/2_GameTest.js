@@ -34,6 +34,20 @@ const dumpCollection = (game, playerId=1) => {
   );
 }
 
+const dumpCollectionsForPlayerId = (game, playerId=1) => {
+  console.log(game
+    .getPlayerManager()
+    .getCollectionsForPlayerId(playerId)
+    .map(c => c.serialize())
+  );
+}
+
+const dumpGameState = (game) => {
+  console.log(
+    game.serialize()
+  )
+};
+
 const findAllCardsOfSet = (game, propertySet) => {
   const cardManager = game.getCardManager();
   return cardManager.findCards((card) => {
@@ -41,6 +55,20 @@ const findAllCardsOfSet = (game, propertySet) => {
       const activeSet = card.getMeta(Card.COMP_ACTIVE_SET);
       return activeSet === propertySet;
     }
+  });
+};
+
+const findAllCardsWithTag = (game, tag) => {
+  const cardManager = game.getCardManager();
+  return cardManager.findCards((card) => {
+    return card.hasTag(tag);
+  });
+};
+
+const findAllCardsWithKey = (game, key) => {
+  const cardManager = game.getCardManager();
+  return cardManager.findCards((card) => {
+    return card.getKey() === key;
   });
 };
 
@@ -55,14 +83,6 @@ const clearDeckAndHands = (game) => {
     playerHand.replaceAllCards([]);
   })
 };
-
-const dumpCollectionsForPlayerId = (game, playerId=1) => {
-  console.log(game
-    .getPlayerManager()
-    .getCollectionsForPlayerId(playerId)
-    .map(c => c.serialize())
-  );
-}
 
 const log = (item) => {
   console.log(JSON.stringify(item))
@@ -620,13 +640,55 @@ if(runThisTest) {
     
   });
 
-  /*
   describe('Requests', () => {
     it('should charge rent', () => {
+      // Make game ==============================
+      const game = new Game();
+      game.setSeed('test');
+      game.setScenario(Game.SCENARIO_PROPERTY_WILD_CASH_ACTION);
 
+      game.addPlayer();
+      game.addPlayer();
+
+      game.start();
+
+      // Setup test case ======================
+      const player1Id = 1;
+      const player2Id = 2;
+      const playerManager = game.getPlayerManager();
+      clearDeckAndHands(game);
+      // Player 1
+      playerManager
+        .makeNewCollectionForPlayer(player1Id)
+        .addCard(1) // PROPERTY_BLUE_1
+        .addCard(2) // PROPERTY_BLUE_2
+      playerManager
+        .getPlayerHand(player1Id)
+        .addCard(92) // SUPER_RENT
+
+      // Player 2
+      playerManager
+        .getPlayerBank(player2Id)
+        .addCard(43) // CASH_4
+        .addCard(44) // CASH_4
+
+      // First turn =========================
+      const collectionId = 1;
+      game.dealTurnStartingCards();
+
+      //dumpGameState(game);
+      
+      game.chargeRentForCollection(collectionId, 92, player2Id);
+      //game.tryToPassTurn();
+
+
+      //console.log('------------');
+      //console.log(findAllCardsWithKey(game, 'SUPER_RENT'));
+      //console.log(findAllCardsOfSet(game, 'blue'));
+      //console.log(findAllCardsWithTag(game, Card.TAG_REQUEST));
+      //dumpAllPlayers(game);
     })
   });
-  //*/
 
   /*
     const playerId = 1;
