@@ -12,11 +12,11 @@ This game will be compatible with free Heroku hosting.
 	 - ✔️hands 	
 	 - ✔️banks 	
 	 - ✔️collections 	
-	 - 🟡cards 		
+	 - ✔️cards 		
 		 - ✔️currency
 		 - ✔️property
 		 - ✔️wild cards
-		 - action cards
+		 - ✔️action cards
 	 - 🟡turns
 		 - ✔️turn phases
 		 - 🟡requests 
