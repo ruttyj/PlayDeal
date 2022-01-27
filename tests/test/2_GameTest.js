@@ -679,9 +679,13 @@ if(runThisTest) {
       //dumpGameState(game);
       
       game.chargeRentForCollection(collectionId, 92, player2Id);
+
+      const requestManager = game.getRequestManager();
+      //console.log(JSON.stringify(requestManager.getRequestsByPlayerId(player1Id), null, 2));
+      //console.log(JSON.stringify(requestManager.serialize(), null, 2));
+
+      
       //game.tryToPassTurn();
-
-
       //console.log('------------');
       //console.log(findAllCardsWithKey(game, 'SUPER_RENT'));
       //console.log(findAllCardsOfSet(game, 'blue'));

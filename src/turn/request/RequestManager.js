@@ -1,16 +1,43 @@
 const AutoIncRepo = require('../../base/AutoIncRepo');
-const RequestChain = require('./RequestChain');
 
 module.exports = class RequestManager {
   constructor(game)
   {
     this._game = game;
-    this._actions = new AutoIncRepo();
-    this._actionChains = new AutoIncRepo();
+    this._requests = new AutoIncRepo();
   }
 
   addRequest(request)
   {
-    return this._actions.insert(request);
+    return this._requests.insert(request);
+  }
+
+  filterRequests(fn)
+  {
+    const result = [];
+    this._requests.forEach(request => {
+      if(fn(request)) {
+        result.push(request); 
+      }
+    });
+
+    return result;
+  }
+
+  getRequestsByPlayerId(playerId)
+  {
+    return this.filterRequests((request) => request.getAuthorId() === playerId);
+  }
+
+  getRequestTargetedAtPlayerId(playerId)
+  {
+    return this.filterRequests((request) => request.getTargetId() === playerId);
+  }
+
+  serialize()
+  {
+    return {
+      requests: this._requests.getAll().map(request => request.serialize()),
+    };
   }
 };

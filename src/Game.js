@@ -574,22 +574,27 @@ module.exports = class Game
 
     // col
     if(playerHand.hasCard(cardId) && playerId === collection.getPlayerId()){
-      const activeSet = collection.getActiveSet();
-      if(![PropertySet.AMBIGIOUS_SET, PropertySet.USELESS_SET].includes(activeSet)){
+      const card = playerHand.getCard(cardId);
+      const collectionActiveSet = collection.getActiveSet();
+
+      const rentData = card.getMeta(Card.COMP_RENT);
+      const targetCase = rentData.target;
+
+      // rent can apply to collection
+      if(rentData.sets.includes(collectionActiveSet)){
         
         // Play card to active pile
         this.getActivePile().addCard(playerHand.giveCard(cardId));
         turn.consumeAction();
 
         // Target players
-        const targetCase = 'all'; // @TODO not suppose to be hard coded
         let targetPlayers = [];
         switch(targetCase)
         {
-          case 'all': // target everyone else
+          case Card.TARGET_ALL: // target everyone else
             targetPlayers = playerManager.filter((player) => player.getId() !== playerId);
             break;
-          case 'one': // target one person
+          case Card.TARGET_ONE: // target one person
             targetPlayers = [playerManager.getPlayer(targetPlayerId)];
             break;
           default:
@@ -600,10 +605,14 @@ module.exports = class Game
         const rentValue = collection.calculateRent();
         const requestManager = this.getRequestManager();
         targetPlayers.forEach((targetPlayer) => {
-          const newRequest = new RequestValue();
-          newRequest.setAuthor(playerId);
-          newRequest.setTarget(targetPlayer.getId());
+          const newRequest = new RequestValue(this);
+          newRequest.setAuthorId(playerId);
+          newRequest.setTargetId(targetPlayer.getId());
           newRequest.setValue(rentValue);
+          newRequest.setCardIds([card.getId()]);
+          if(card.hasTag(Card.TAG_CONTESTABLE)) {
+            newRequest.setIsContestable(true);
+          }
 
           const insertedRequest = requestManager.addRequest(newRequest);
         })
