@@ -4,6 +4,7 @@ const { describe, it } = require('mocha');
 const Game = require('../../src/Game');
 const Turn = require('../../src/turn/Turn');
 const Card = require('../../src/card/Card');
+const Request = require('../../src/turn/request/Request');
 const PropertySet = require('../../src/card/PropertySet');
 
 const runThisTest = true;
@@ -13,7 +14,14 @@ const dumpAllPlayers = (game) => {
 
   playerManager.getAllPlayerIds().forEach(playerId => {
     console.log(`Player ${playerId} -----------------`);
+
+    console.log('Hand');
     dumpPlayerHand(game, playerId);
+    
+    console.log('Bank');
+    dumpPlayerBank(game, playerId);
+
+    console.log('Collections');
     dumpCollectionsForPlayerId(game, playerId);
   })
 }
@@ -22,6 +30,15 @@ const dumpPlayerHand = (game, playerId=1) => {
   console.log(game
     .getPlayerManager()
     .getPlayerHand(playerId)
+    .getAllCards()
+    .map(c => c.serialize())
+  );
+}
+
+const dumpPlayerBank = (game, playerId=1) => {
+  console.log(game
+    .getPlayerManager()
+    .getPlayerBank(playerId)
     .getAllCards()
     .map(c => c.serialize())
   );
@@ -676,25 +693,44 @@ if(runThisTest) {
       const collectionId = 1;
       game.dealTurnStartingCards();
 
-      //dumpGameState(game);
-      
       game.chargeRentForCollection(collectionId, 92, player2Id);
 
+      // Check that Request is as expected
       const requestManager = game.getRequestManager();
-      //console.log(JSON.stringify(requestManager.getRequestsByPlayerId(player1Id), null, 2));
-      //console.log(JSON.stringify(requestManager.serialize(), null, 2));
+      const requestId = 1;
+      const request = requestManager.getRequest(requestId);
+      assert.equal(request.getValue(), 8);
+      assert.equal(request.getTargetId(), player2Id);
+      assert.equal(request.getAuthorId(), player1Id);
+      assert.equal(request.getType(), Request.TYPE_REQUEST_VALUE);
+      assert.equal(request.getStatus(), Request.STATUS_REQUESTING);
+      assert.equal(request.isSatisfied(), false);
+      assert.equal(request.isClosed(), false);
+      assert.equal(request.isContestable(), true);
 
+      // Player 2 pays with bank
+      game.payRequest(player2Id, requestId, [43, 44]);
+
+
+      console.log(JSON.stringify(requestManager.getRequestsByPlayerId(player1Id).map(r => r.serialize()), null, 2));
+      dumpAllPlayers(game);
       
-      //game.tryToPassTurn();
-      //console.log('------------');
-      //console.log(findAllCardsWithKey(game, 'SUPER_RENT'));
-      //console.log(findAllCardsOfSet(game, 'blue'));
-      //console.log(findAllCardsWithTag(game, Card.TAG_REQUEST));
-      //dumpAllPlayers(game);
+      
+      // #unfinished
     })
   });
 
   /*
+    //console.log(JSON.stringify(requestManager.getRequestsByPlayerId(player1Id).map(r => r.serialize()), null, 2));
+    //console.log(JSON.stringify(requestManager.serialize(), null, 2));
+    
+    //game.tryToPassTurn();
+    //console.log('------------');
+    //console.log(findAllCardsWithKey(game, 'SUPER_RENT'));
+    //console.log(findAllCardsOfSet(game, 'blue'));
+    //console.log(findAllCardsWithTag(game, Card.TAG_REQUEST));
+    //dumpAllPlayers(game);
+
     const playerId = 1;
     dumpPlayerHand(game, playerId);
     dumpCollectionsForPlayerId(game, playerId);

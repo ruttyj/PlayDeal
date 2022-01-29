@@ -7,8 +7,10 @@ const CardContainer = require(srcPath + '/card/CardContainer');
 const Turn = require(srcPath + '/turn/Turn');
 const Card = require(srcPath + '/card/Card');
 const PropertySet = require(srcPath + '/card/PropertySet');
+const Request = require('./turn/request/Request');
 const RequestValue = require('./turn/request/types/RequestValue');
-
+const WealthTransfer = require('./turn/request/WealthTransfer');
+const Transfer = require('./turn/request/Transfer');
 /**
  * PlayDeal
  */
@@ -561,6 +563,7 @@ module.exports = class Game
   //===============================================
   chargeRentForCollection(collectionId, cardId, targetPlayerId = null)
   {
+    const game = this;
     const playerManager = this._playerManager;
     const turn = this.getTurn();
     const playerId = turn.getPlayerId();
@@ -609,7 +612,7 @@ module.exports = class Game
     const rentValue = collection.calculateRent();
     const requestManager = this.getRequestManager();
     targetPlayers.forEach((targetPlayer) => {
-      const newRequest = new RequestValue(this);
+      const newRequest = new RequestValue(game);
       newRequest.setAuthorId(playerId);
       newRequest.setTargetId(targetPlayer.getId());
       newRequest.setValue(rentValue);
@@ -622,6 +625,76 @@ module.exports = class Game
     })
   }
 
+
+  payRequest(playerId, requestId, cardIds)
+  {
+    cardIds = [...new Set(cardIds)]; // ensure all are unique
+
+    const game = this;
+    const requestManager = game.getRequestManager();
+    const playerManager = game.getPlayerManager();
+    const playerBank = playerManager.getPlayerBank(playerId);
+    const request = requestManager.getRequest(requestId);
+
+    console.log('A');
+    // Only target player can pay
+    if(request.getTargetId() !== playerId) {
+      return null;
+    }
+    console.log('B');
+
+    // Function only work on value requests
+    if(request.getType() !== Request.TYPE_REQUEST_VALUE) {
+      return null;
+    }
+
+    console.log('C');
+
+    // Can only pay if request is not satisfied and being requested
+    if(request.getStatus() !== Request.STATUS_REQUESTING) {
+      return null;
+    }
+
+    console.log('D');
+
+    let runningTotal = 0;
+    const payingWithBankCards = [];
+    cardIds.forEach((cardId) => {
+      // does player have in bank?
+      if(playerBank.hasCard(cardId)) {
+        const card = playerBank.getCard(cardId);
+        const value = card.getValue();
+        if(value > 0) {
+          runningTotal += value;
+          payingWithBankCards.push(cardId);
+        }
+      } else {
+        // is it in one of their collections?
+        // @TODO
+      }
+    })
+
+    const payInFull = runningTotal >= request.getValue();
+    const hasNothingElseToPayWith = false; // @TODO
+    if(payInFull || hasNothingElseToPayWith) {
+
+      console.log('E');
+
+      request.accept();
+
+      const wealthTransfer = request.getWealthTransfer();
+      const transferToAuthor = wealthTransfer.addTransferDirection(WealthTransfer.DIRECTION_AUTHOR);
+
+      // Give bank
+      if(payingWithBankCards.length > 0) {
+        playerBank.removeCards(payingWithBankCards);
+        transferToAuthor.add(Transfer.TRANSFER_BANK, payingWithBankCards);
+      }
+
+      // Give property
+      // @TODO
+    }
+  }
 
   //===============================================
 

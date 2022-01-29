@@ -24,6 +24,11 @@ module.exports = class RequestManager {
     return result;
   }
 
+  getRequest(requestId)
+  {
+    return this._requests.get(requestId);
+  }
+
   getRequestsByPlayerId(playerId)
   {
     return this.filterRequests((request) => request.getAuthorId() === playerId);

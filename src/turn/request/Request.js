@@ -23,8 +23,6 @@ module.exports = class Request extends Model {
     this._status = Request.STATUS_REQUESTING;
     this._isSatisfied = false; // target has satisfied the request - parties may claim their rewards
     this._isClosed = false; // is completly over and done with
-
-    this._wealthTransfer = null; // @TODO
   }
 
   setIsContestable(contestable)
@@ -32,9 +30,19 @@ module.exports = class Request extends Model {
     this._contestable = contestable;
   }
 
+  isContestable()
+  {
+    return this._contestable;
+  }
+
   setStatus(status)
   {
     this._status = status;
+  }
+
+  getStatus()
+  {
+    return this._status;
   }
 
   setType(type)
@@ -42,19 +50,24 @@ module.exports = class Request extends Model {
     this._type = type;
   }
 
+  getType()
+  {
+    return this._type;
+  }
+
   setTargetId(target)
   {
     this._target = target;
   }
 
-  setAuthorId(author)
-  {
-    this._author = author;
-  }
-
   getTargetId()
   {
     return this._target;
+  }
+
+  setAuthorId(author)
+  {
+    this._author = author;
   }
 
   getAuthorId()
@@ -67,9 +80,19 @@ module.exports = class Request extends Model {
     this._isSatisfied = isSatisfied;
   }
 
+  isSatisfied()
+  {
+    return this._isSatisfied;
+  }
+
   setClosed(isClosed)
   {
     this._isClosed = isClosed;
+  }
+
+  isClosed()
+  {
+    return this._isClosed;
   }
 
   setCardIds(ids)
@@ -92,6 +115,7 @@ module.exports = class Request extends Model {
   serialize()
   {
     return {
+      ...super.serialize(),
       type: this._type,
       cardIds: this._cardIds,
       target: this._target,

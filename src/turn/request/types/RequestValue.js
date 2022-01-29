@@ -1,7 +1,7 @@
 const Request = require('../Request');
-const Card = require('../../../card/Card');
+const RequestWealthTransfer = require('./RequestWealthTransfer');
 
-module.exports = class RequestValue extends Request {
+module.exports = class RequestValue extends RequestWealthTransfer {
 
   constructor(game)
   {
@@ -15,14 +15,19 @@ module.exports = class RequestValue extends Request {
     this._value = value;
   }
 
+  getValue()
+  {
+    return this._value;
+  }
+
   accept()
   {
-    Super().accept();
+    super.accept();
   }
 
   decline()
   {
-    Super().decline();
+    super.decline();
   }
 
   serialize()

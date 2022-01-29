@@ -118,6 +118,13 @@ module.exports = class CardContainer {
     this._items.delete(cardId);
   }
 
+  removeCards(cardsOrIds)
+  {
+    cardsOrIds.forEach(cardOrId => {
+      this.removeCard(cardOrId);
+    })
+  }
+
   giveCard(cardOrId)
   {
     const cardId = this._getId(cardOrId);
