@@ -708,13 +708,14 @@ if(runThisTest) {
       assert.equal(request.isClosed(), false);
       assert.equal(request.isContestable(), true);
 
+      
+      /*
       // Player 2 pays with bank
       game.payRequest(player2Id, requestId, [43, 44]);
 
-
       console.log(JSON.stringify(requestManager.getRequestsByPlayerId(player1Id).map(r => r.serialize()), null, 2));
       dumpAllPlayers(game);
-      
+      //*/
       
       // #unfinished
     })

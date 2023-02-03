@@ -8,7 +8,7 @@ const Turn = require(srcPath + '/turn/Turn');
 const Card = require(srcPath + '/card/Card');
 const PropertySet = require(srcPath + '/card/PropertySet');
 const Request = require('./turn/request/Request');
-const RequestValue = require('./turn/request/types/RequestValue');
+const RequestValue = require('./turn/request/requestTypes/RequestValue');
 const WealthTransfer = require('./turn/request/WealthTransfer');
 const Transfer = require('./turn/request/Transfer');
 /**
@@ -628,7 +628,6 @@ module.exports = class Game
 
   payRequest(playerId, requestId, cardIds)
   {
-    cardIds = [...new Set(cardIds)]; // ensure all are unique
 
     const game = this;
     const requestManager = game.getRequestManager();
@@ -659,6 +658,7 @@ module.exports = class Game
 
     let runningTotal = 0;
     const payingWithBankCards = [];
+    cardIds = [...new Set(cardIds)]; // ensure all are unique
     cardIds.forEach((cardId) => {
       // does player have in bank?
       if(playerBank.hasCard(cardId)) {
@@ -675,7 +675,7 @@ module.exports = class Game
     })
 
     const payInFull = runningTotal >= request.getValue();
-    const hasNothingElseToPayWith = false; // @TODO
+    const hasNothingElseToPayWith = false; // @TODO checlk if there is properties
     if(payInFull || hasNothingElseToPayWith) {
 
       console.log('E');
@@ -694,6 +694,11 @@ module.exports = class Game
       // Give property
       // @TODO
     }
+  }
+
+  acceptRentPayment()
+  {
+
   }
 
   //===============================================
