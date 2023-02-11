@@ -1,4 +1,4 @@
-module.exports = class AutoIncRepo {
+module.exports = class Repo {
   constructor()
   {
     this.reset();
