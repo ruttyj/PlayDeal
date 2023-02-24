@@ -1,51 +1,52 @@
 module.exports = class Model {
-  constructor()
-  {
-    this._id = null;
-  }
+    constructor() {
+        this._id = null;
+    }
 
-  setId(id)
-  {
-    this._id  = id;
-  }
+    //===============================================
 
-  getId()
-  {
-    return this._id;
-  }
+    //                      ID
 
-  encode(data)
-  {
-    return data;
-  }
+    //===============================================
+    setId(id) {
+        this._id = id;
+    }
 
-  decode(data)
-  {
-    return data;
-  }
+    getId() {
+        return this._id;
+    }
 
-  _serialize()
-  {
-    return {
-      id: this._id,
-    };
-  }
+    //===============================================
 
-  serialize()
-  {
-    return this.encode(this._serialize())
-  }
+    //              Serialization
 
-  _unserialize(data)
-  {
-    this._id = data.id;
+    //===============================================
+    encode(data) {
+        return data;
+    }
 
-    return data;
-  }
+    decode(data) {
+        return data;
+    }
 
-  unserialize(encoded)
-  {
-    const data = this.decode(encoded);
-    this._unserialize(data);
-  }
-}
+    _serialize() {
+        return {
+            id: this._id,
+        };
+    }
+
+    serialize() {
+        return this.encode(this._serialize());
+    }
+
+    _unserialize(data) {
+        this._id = data.id;
+
+        return data;
+    }
+
+    unserialize(encoded) {
+        const data = this.decode(encoded);
+        this._unserialize(data);
+    }
+};

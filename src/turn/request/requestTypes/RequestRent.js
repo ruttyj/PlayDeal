@@ -1,11 +1,10 @@
 const Request = require("../Request");
-const RequestWealthTransfer = require("./RequestWealthTransfer");
+const RequestValue = require("./RequestValue");
 
-module.exports = class RequestValue extends RequestWealthTransfer {
+module.exports = class RequestRent extends RequestValue {
     constructor(game) {
         super(game);
-        this._type = Request.TYPE_REQUEST_VALUE;
-        this._value = 0;
+        this._type = Request.TYPE_REQUEST_RENT;
         this._collectionId = null;
     }
 
@@ -14,12 +13,21 @@ module.exports = class RequestValue extends RequestWealthTransfer {
     //                   Value
 
     //===============================================
-    setValue(value) {
-        this._value = value;
-    }
-
     getValue() {
         return this._value;
+    }
+
+    //===============================================
+
+    //                 Collection ID
+
+    //===============================================
+    setCollectionId(value) {
+        this._collectionId = value;
+    }
+
+    getCollectionId() {
+        return this._collectionId;
     }
 
     //===============================================
@@ -30,7 +38,8 @@ module.exports = class RequestValue extends RequestWealthTransfer {
     serialize() {
         return {
             ...super.serialize(),
-            value: this.getValue(),
+            value: this._value,
+            collectionId: this._collectionId,
         };
     }
 };

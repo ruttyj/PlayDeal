@@ -1,48 +1,65 @@
-const AutoIncRepo = require('../../base/AutoIncRepo');
+const AutoIncRepo = require("../../base/AutoIncRepo");
+const RequestStack = require("./RequestStack");
 
 module.exports = class RequestManager {
-  constructor(game)
-  {
-    this._game = game;
-    this._requests = new AutoIncRepo();
-  }
+    constructor(game) {
+        this._game = game;
+        this._requests = new AutoIncRepo();
+        this._requestStacks = new AutoIncRepo();
+    }
 
-  addRequest(request)
-  {
-    return this._requests.insert(request);
-  }
+    //===============================================
 
-  filterRequests(fn)
-  {
-    const result = [];
-    this._requests.forEach(request => {
-      if(fn(request)) {
-        result.push(request); 
-      }
-    });
+    //                 Requests
 
-    return result;
-  }
+    //===============================================
+    createNewRequestStack(request) {
+        this._requests.insert(request);
 
-  getRequest(requestId)
-  {
-    return this._requests.get(requestId);
-  }
+        const reqStack = new RequestStack(this._game);
+        this._requestStacks.insert(reqStack);
+        reqStack.pushRequestId(request.getId());
 
-  getRequestsByPlayerId(playerId)
-  {
-    return this.filterRequests((request) => request.getAuthorId() === playerId);
-  }
+        return reqStack;
+    }
 
-  getRequestTargetedAtPlayerId(playerId)
-  {
-    return this.filterRequests((request) => request.getTargetId() === playerId);
-  }
+    filterRequests(fn) {
+        const result = [];
+        this._requests.forEach((request) => {
+            if (fn(request)) {
+                result.push(request);
+            }
+        });
 
-  serialize()
-  {
-    return {
-      requests: this._requests.getAll().map(request => request.serialize()),
-    };
-  }
+        return result;
+    }
+
+    getRequest(requestId) {
+        return this._requests.get(requestId);
+    }
+
+    getRequestsByPlayerId(playerId) {
+        return this.filterRequests(
+            (request) => request.getAuthorId() === playerId
+        );
+    }
+
+    getRequestTargetedAtPlayerId(playerId) {
+        return this.filterRequests(
+            (request) => request.getTargetId() === playerId
+        );
+    }
+
+    //===============================================
+
+    //                  Serialize
+
+    //===============================================
+    serialize() {
+        return {
+            requests: this._requests
+                .getAll()
+                .map((request) => request.serialize()),
+        };
+    }
 };
