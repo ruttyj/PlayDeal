@@ -810,7 +810,7 @@ module.exports = class Game {
             }
 
             // @TODO Transfer property
-            this.setIsSatisfied(true);
+            request.setIsSatisfied(true);
             return true;
         }
         return false;
