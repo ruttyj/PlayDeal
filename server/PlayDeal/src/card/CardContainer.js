@@ -73,8 +73,8 @@ module.exports = class CardContainer {
   getAllCardIds()
   {
     const result = [];
-    this._items.forEach((card, id) => {
-      result.push(id);
+    this._items.forEach((card, cardId) => {
+      result.push(cardId);
     })
     return result;
   }
@@ -82,7 +82,7 @@ module.exports = class CardContainer {
   getAllCards()
   {
     const result = [];
-    this._items.forEach((junk, cardId) => {
+    this._items.forEach((card, cardId) => {
       result.push(this.getCard(cardId));
     });
     return result;
