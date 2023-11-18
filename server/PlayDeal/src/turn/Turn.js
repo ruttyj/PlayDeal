@@ -115,10 +115,32 @@ module.exports = class Turn {
         return this.getCountCardsTooMany() > 0;
     }
 
+    isRequestPhaseCompleted() {
+        const requestManager = game.getRequestManager();
+
+        let isDone = true;
+        requestManager
+            .getRequestsByPlayerId(this.getPlayerId())
+            .forEach((request) => {
+                if (!request.isSatified() || !request.isClosed()) {
+                    isDone = false;
+                }
+            });
+
+        return isDone;
+    }
+
     nextPhase() {
         const currentPhase = this.getPhase();
         let resultPhase = currentPhase;
         if (currentPhase !== Turn.PHASE_DONE) {
+            const attemptToEndTurn = () => {
+                if (this.shouldDiscardCards()) {
+                    resultPhase = Turn.PHASE_DISCARD;
+                } else {
+                    resultPhase = Turn.PHASE_DONE;
+                }
+            };
             switch (currentPhase) {
                 case Turn.PHASE_DRAW:
                     if (this.hasTag(Turn.TAG_CARDS_DRAWN)) {
@@ -126,14 +148,14 @@ module.exports = class Turn {
                     }
                     break;
                 case Turn.PHASE_ACTION:
-                    if (this.shouldDiscardCards()) {
-                        resultPhase = Turn.PHASE_DISCARD;
-                    } else {
-                        resultPhase = Turn.PHASE_DONE;
-                    }
+                    attemptToEndTurn();
                     break;
                 case Turn.PHASE_REQUEST:
                     // @TODO check if requests are all satisfied
+                    if (this.isRequestPhaseCompleted()) {
+                        attemptToEndTurn();
+                    }
+
                     break;
                 case Turn.PHASE_DISCARD:
                     if (!this.shouldDiscardCards()) {

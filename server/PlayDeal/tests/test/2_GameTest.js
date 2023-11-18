@@ -719,7 +719,7 @@ if (runThisTest) {
     });
 
     describe("Requests", () => {
-        it("Should collect bank value paid in cash", () => {
+        it("Should collect all payment paid in cash before turn end", () => {
             // Make game ==============================
             const game = new Game();
             game.setSeed("test");
@@ -732,11 +732,8 @@ if (runThisTest) {
             game.start();
 
             // Setup test case ======================
-            const player1Id = 1;
-            const player2Id = 2;
-            const player3Id = 3;
-
             const playerManager = game.getPlayerManager();
+            const requestManager = game.getRequestManager();
 
             // Get a cash card id
             const rentCardValue = 2;
@@ -744,6 +741,10 @@ if (runThisTest) {
                 game,
                 `CASH_${rentCardValue}`
             );
+
+            const player1Id = 1;
+            const player2Id = 2;
+            const player3Id = 3;
 
             // set up players banks
             const player2CashCard = cash2MillCards[0].getId();
@@ -756,16 +757,16 @@ if (runThisTest) {
             const happyBirthdayCardId = birthdayCards[0].getId();
             playerManager.getPlayerHand(player1Id).addCard(happyBirthdayCardId); // BIRTHDAY
 
-            // First turn =========================
+            // First turn ======================================
             game.dealTurnStartingCards();
 
             // Happy Birthday
             game.chargePlayerValue(happyBirthdayCardId, player2Id);
 
-            const requestManager = game.getRequestManager();
-
-            // Validate request ===================
-            const validateRequest = (request, playerId) => {
+            // Validate request were created
+            const request1Id = 1;
+            const request2Id = 2;
+            const assertOpenContestableRequest = (request, playerId) => {
                 assert.equal(request.getType(), Request.TYPE_REQUEST_VALUE);
                 assert.equal(
                     request.getValue(),
@@ -793,72 +794,40 @@ if (runThisTest) {
                     "Status should be requesting"
                 );
             };
-            validateRequest(requestManager.getRequest(1), player2Id);
-            validateRequest(requestManager.getRequest(2), player3Id);
+            assertOpenContestableRequest(
+                requestManager.getRequest(request1Id),
+                player2Id
+            );
+            assertOpenContestableRequest(
+                requestManager.getRequest(request2Id),
+                player3Id
+            );
 
-            // Player 2 pays request
-            game.payRequest(player2Id, 1, [player2CashCard]);
-        });
-        if (false) {
-            it("Should charge rent", () => {
-                // Make game ==============================
-                const game = new Game();
-                game.setSeed("test");
-                game.setScenario(Game.SCENARIO_PROPERTY_WILD_CASH_ACTION);
+            // Players pays request
+            game.payRequest(player2Id, request1Id, [player2CashCard]);
+            game.payRequest(player3Id, request2Id, [player3CashCard]);
 
-                game.addPlayer();
-                game.addPlayer();
-
-                game.start();
-
-                // Setup test case ======================
-                const player1Id = 1;
-                const player2Id = 2;
-                const playerManager = game.getPlayerManager();
-                clearDeckAndHands(game);
-                // Player 1
-                playerManager
-                    .makeNewCollectionForPlayer(player1Id)
-                    .addCard(1) // PROPERTY_BLUE_1
-                    .addCard(2); // PROPERTY_BLUE_2
-                playerManager.getPlayerHand(player1Id).addCard(92); // SUPER_RENT
-
-                // Player 2
-                playerManager
-                    .getPlayerBank(player2Id)
-                    .addCard(43) // CASH_4
-                    .addCard(44); // CASH_4
-
-                // First turn =========================
-                const collectionId = 1;
-                game.dealTurnStartingCards();
-
-                game.chargeRentForCollection(collectionId, 92, player2Id);
-
-                // Check that Request is as expected
-                const requestManager = game.getRequestManager();
-                const requestId = 1;
+            // Check if requests are satisfied
+            const assertPayedInFull = (requestId) => {
                 const request = requestManager.getRequest(requestId);
-                assert.equal(request.getValue(), 8);
-                assert.equal(request.getTargetId(), player2Id);
-                assert.equal(request.getAuthorId(), player1Id);
-                assert.equal(request.getType(), Request.TYPE_REQUEST_RENT);
-                assert.equal(request.getStatus(), Request.STATUS_REQUESTING);
-                assert.equal(request.isSatisfied(), false);
-                assert.equal(request.isClosed(), false);
-                assert.equal(request.isContestable(), true);
+                assert.equal(
+                    request.isSatisfied(),
+                    true,
+                    `request ${requestId} should be satisfied`
+                );
+            };
 
-                /*
-      // Player 2 pays with bank
-      game.payRequest(player2Id, requestId, [43, 44]);
+            // both requests should be satisfied
+            assertPayedInFull(request1Id);
+            assertPayedInFull(request2Id);
 
-      console.log(JSON.stringify(requestManager.getRequestsByPlayerId(player1Id).map(r => r.serialize()), null, 2));
-      dumpAllPlayers(game);
-      //*/
-
-                // #unfinished
-            });
-        }
+            game.tryToPassTurn();
+            assert.equal(
+                game.getTurn().getPlayerId(),
+                player2Id,
+                `should be player ${player2Id} turn`
+            );
+        });
     });
 
     /*

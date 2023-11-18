@@ -64,6 +64,11 @@ module.exports = class Game {
         this.getRequestManager().getRequest(requestId);
     }
 
+    //===============================================
+
+    //                    RNG SEED
+
+    //===============================================
     setSeed(seed) {
         this._rng.setSeed(seed);
     }
@@ -80,6 +85,11 @@ module.exports = class Game {
         return this._scenario;
     }
 
+    //===============================================
+
+    //                    PLAYERS
+
+    //===============================================
     addPlayer() {
         if (!this._hasStarted) {
             return this._playerManager.addPlayer();
@@ -106,49 +116,20 @@ module.exports = class Game {
         return this._playerManager.getPlayerCount();
     }
 
-    getCollection(collectionId) {
-        // yes this is a bit of a streach, to be refactored
-        return this._playerManager.getCollection(collectionId);
-    }
+    //===============================================
 
-    getPropertySet(propertySetId) {
-        return this._cardManager.getPropertySet(propertySetId);
-    }
+    //                    CONFIGS
 
-    getTurn() {
-        return this._turnManager.getTurn();
-    }
-
-    canStart() {
-        return (
-            !this._hasStarted &&
-            !this._hasEnded &&
-            this._hasEnoughPeopleToStart()
-        );
-    }
-
-    _hasEnoughPeopleToStart() {
-        return this._minPlayerLimit <= this.getPlayerCount();
-    }
-
+    //===============================================
     getMaxCardsInHand() {
         return this._maxCardsInHand;
     }
 
-    start() {
-        // Setup managers
-        this._initCardManager();
-        this._playerManager.setup();
-        this._turnManager.setup();
+    //===============================================
 
-        this._generateDeck();
+    //                  CARD MANAGER
 
-        this._hasStarted = true;
-
-        // Give out cards to players
-        this._dealInitialCards();
-    }
-
+    //===============================================
     _initCardManager() {
         let cardLoadout;
 
@@ -188,6 +169,15 @@ module.exports = class Game {
 
     getCardManager() {
         return this._cardManager;
+    }
+
+    getCollection(collectionId) {
+        // yes this is a bit of a streach, to be refactored
+        return this._playerManager.getCollection(collectionId);
+    }
+
+    getPropertySet(propertySetId) {
+        return this._cardManager.getPropertySet(propertySetId);
     }
 
     //===============================================
@@ -304,9 +294,38 @@ module.exports = class Game {
 
     //===============================================
 
-    //                WIN CONDITION
+    //                  LIFE CYCLE
 
     //===============================================
+    getTurn() {
+        return this._turnManager.getTurn();
+    }
+
+    canStart() {
+        return (
+            !this._hasStarted &&
+            !this._hasEnded &&
+            this._hasEnoughPeopleToStart()
+        );
+    }
+
+    _hasEnoughPeopleToStart() {
+        return this._minPlayerLimit <= this.getPlayerCount();
+    }
+
+    start() {
+        // Setup managers
+        this._initCardManager();
+        this._playerManager.setup();
+        this._turnManager.setup();
+
+        this._generateDeck();
+
+        this._hasStarted = true;
+
+        // Give out cards to players
+        this._dealInitialCards();
+    }
 
     _checkDoesPlayerWin(playerId) {
         const playerManager = this._playerManager;
@@ -327,15 +346,15 @@ module.exports = class Game {
         this._winner = playerId;
     }
 
+    isGameOver() {
+        return this._hasEnded;
+    }
+
     getWinner() {
         if (this._winner) {
             return this._playerManager.getPlayer(this._winner);
         }
         return null;
-    }
-
-    isGameOver() {
-        return this._hasEnded;
     }
 
     //===============================================
@@ -810,6 +829,8 @@ module.exports = class Game {
             }
 
             // @TODO Transfer property
+
+            // Mark as satisfied
             request.setIsSatisfied(true);
             return true;
         }
