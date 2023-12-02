@@ -22,6 +22,7 @@ module.exports = class RequestWealthTransfer extends Request {
         const request = this;
         const wealthTransfer = request.getWealthTransfer();
 
+        /*
         //-------------------------------------------
 
         //          Transfer between banks
@@ -71,6 +72,7 @@ module.exports = class RequestWealthTransfer extends Request {
 
         // Conclude tranasction
         super.accept();
+        */
     }
 
     decline() {

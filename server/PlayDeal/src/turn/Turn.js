@@ -118,6 +118,7 @@ module.exports = class Turn {
     isRequestPhaseCompleted() {
         const requestManager = game.getRequestManager();
 
+        // are all the requests from
         let isDone = true;
         requestManager
             .getRequestsByPlayerId(this.getPlayerId())
@@ -155,7 +156,6 @@ module.exports = class Turn {
                     if (this.isRequestPhaseCompleted()) {
                         attemptToEndTurn();
                     }
-
                     break;
                 case Turn.PHASE_DISCARD:
                     if (!this.shouldDiscardCards()) {

@@ -1,12 +1,12 @@
-const srcPath = "../src";
-const PlayerManager = require(srcPath + "/player/PlayerManager");
-const CardManager = require(srcPath + "/card/CardManager");
-const TurnManager = require(srcPath + "/turn/TurnManager");
-const RandomNumberGen = require(srcPath + "/utils/RandomNumberGen");
-const CardContainer = require(srcPath + "/card/CardContainer");
-const Turn = require(srcPath + "/turn/Turn");
-const Card = require(srcPath + "/card/Card");
-const PropertySet = require(srcPath + "/card/PropertySet");
+const PlayerManager = require("../src/player/PlayerManager");
+const CardManager = require("../src/card/CardManager");
+const TurnManager = require("../src/turn/TurnManager");
+const RandomNumberGen = require("../src/utils/RandomNumberGen");
+const CardContainer = require("../src/card/CardContainer");
+const CardSelection = require("../src/card/CardSelection");
+const Turn = require("../src/turn/Turn");
+const Card = require("../src/card/Card");
+const PropertySet = require("../src/card/PropertySet");
 const Request = require("./turn/request/Request");
 const RequestValue = require("./turn/request/requestTypes/RequestValue");
 const RequestRent = require("./turn/request/requestTypes/RequestRent");
@@ -689,9 +689,10 @@ module.exports = class Game {
 
         const requestManager = game.getRequestManager();
         targetPlayers.forEach((targetPlayer) => {
+            const targetPlayerId = targetPlayer.getId();
             const newRequest = new RequestValue(game);
             newRequest.setAuthorId(authorPlayerId);
-            newRequest.setTargetId(targetPlayer.getId());
+            newRequest.setTargetId(targetPlayerId);
             newRequest.setValue(chargeValue);
             if (card.hasTag(Card.TAG_CONTESTABLE)) {
                 newRequest.setIsContestable(true);
@@ -760,6 +761,17 @@ module.exports = class Game {
             requestManager.createNewRequestStack(newRequest);
         });
     }
+
+    acceptRequest(playerId, requestId, responseObject) {}
+
+    contestRequest(playerId, requestId, responseObject) {
+        /*
+        CardSelection
+        @TODO 
+        */
+    }
+
+    claimRequest(playerId, requestId) {}
 
     payRequest(playerId, requestId, bankCardIds, propertyCardIds) {
         const game = this;

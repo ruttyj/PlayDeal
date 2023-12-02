@@ -17,6 +17,7 @@ module.exports = class Request extends Model {
         this._target = null; // person being targeted
         this._author = null; // person making request
         this._contestable = false;
+        this._isClaimable = false;
         this._status = Request.STATUS_REQUESTING;
         this._isSatisfied = false; // target has satisfied the request - parties may claim their rewards
         this._isClosed = false; // is completly over and done with
@@ -128,13 +129,30 @@ module.exports = class Request extends Model {
 
     //===============================================
     accept() {
-        this._isSatisfied = true;
+        this.setIsSatisfied(true);
         this.setStatus(Request.STATUS_ACCEPTED);
     }
 
+    contest() {}
+
     decline() {
-        this._isSatisfied = true;
+        this.setIsSatisfied(true);
         this.setStatus(Request.STATUS_DECLINED);
+    }
+
+    //===============================================
+
+    //                 Claimable
+
+    //===============================================
+    isClaimable() {
+        return this._isClaimable && !this.isClosed();
+    }
+
+    claim() {
+        if (this.isClaimable() && this.isSatisfied()) {
+            this.setClosed(true);
+        }
     }
 
     //===============================================

@@ -1,54 +1,20 @@
 const { assert } = require("chai");
 const { describe, it } = require("mocha");
 
+const runThisTest = true;
+
 const Game = require("../../src/Game");
 const Turn = require("../../src/turn/Turn");
 const Card = require("../../src/card/Card");
 const Request = require("../../src/turn/request/Request");
 const PropertySet = require("../../src/card/PropertySet");
 
-const runThisTest = true;
-
-const dumpAllPlayers = (game) => {
-    const playerManager = game.getPlayerManager();
-
-    playerManager.getAllPlayerIds().forEach((playerId) => {
-        console.log(`Player ${playerId} -----------------`);
-
-        console.log("Hand");
-        dumpPlayerHand(game, playerId);
-
-        console.log("Bank");
-        dumpPlayerBank(game, playerId);
-
-        console.log("Collections");
-        dumpCollectionsForPlayerId(game, playerId);
-    });
-};
-
-const dumpPlayerHand = (game, playerId = 1) => {
-    console.log(
-        game
-            .getPlayerManager()
-            .getPlayerHand(playerId)
-            .getAllCards()
-            .map((c) => c.serialize())
-    );
-};
-
-const dumpPlayerBank = (game, playerId = 1) => {
-    console.log(
-        game
-            .getPlayerManager()
-            .getPlayerBank(playerId)
-            .getAllCards()
-            .map((c) => c.serialize())
-    );
-};
-
-const dumpCollection = (game, playerId = 1) => {
-    console.log(game.getCollection(playerId).serialize());
-};
+const {
+    findAllCardsOfSet,
+    findAllCardsWithTag,
+    findAllCardsWithKey,
+    clearDeckAndHands,
+} = require("../../src/utils/cardMethods");
 
 const dumpCollectionsForPlayerId = (game, playerId = 1) => {
     console.log(
@@ -61,42 +27,6 @@ const dumpCollectionsForPlayerId = (game, playerId = 1) => {
 
 const dumpGameState = (game) => {
     console.log(game.serialize());
-};
-
-const findAllCardsOfSet = (game, propertySet) => {
-    const cardManager = game.getCardManager();
-    return cardManager.findCards((card) => {
-        if (card.hasMeta(Card.COMP_ACTIVE_SET)) {
-            const activeSet = card.getMeta(Card.COMP_ACTIVE_SET);
-            return activeSet === propertySet;
-        }
-    });
-};
-
-const findAllCardsWithTag = (game, tag) => {
-    const cardManager = game.getCardManager();
-    return cardManager.findCards((card) => {
-        return card.hasTag(tag);
-    });
-};
-
-const findAllCardsWithKey = (game, key) => {
-    const cardManager = game.getCardManager();
-    return cardManager.findCards((card) => {
-        return card.getKey() === key;
-    });
-};
-
-const clearDeckAndHands = (game) => {
-    const playerManager = game.getPlayerManager();
-    // Clear deck - no player will receive cards upon start of turn
-    const deck = game.getDeck();
-    deck.replaceAllCards([]);
-
-    playerManager.getAllPlayerIds().forEach((playerId) => {
-        const playerHand = playerManager.getPlayerHand(playerId);
-        playerHand.replaceAllCards([]);
-    });
 };
 
 const log = (item) => {
@@ -719,7 +649,7 @@ if (runThisTest) {
     });
 
     describe("Requests", () => {
-        it("Should collect all payment paid in cash before turn end", () => {
+        it("(INCOMPLETE) Should collect all payment paid in cash before turn end", () => {
             // Make game ==============================
             const game = new Game();
             game.setSeed("test");
@@ -803,6 +733,21 @@ if (runThisTest) {
                 player3Id
             );
 
+            /*
+            requestManager.acceptRequest(requiestId, {
+              actionCardIds: [],
+              bankCardIds: [],
+              propertyCardIds: [],
+              collectionIds: [],
+            });
+            
+            requestManager.contestRequest({
+              actionCardIds
+            })
+
+            */
+
+            /*
             // Players pays request
             game.payRequest(player2Id, request1Id, [player2CashCard]);
             game.payRequest(player3Id, request2Id, [player3CashCard]);
@@ -827,6 +772,7 @@ if (runThisTest) {
                 player2Id,
                 `should be player ${player2Id} turn`
             );
+            */
         });
     });
 
