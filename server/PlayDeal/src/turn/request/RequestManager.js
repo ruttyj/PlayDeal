@@ -139,7 +139,6 @@ module.exports = class RequestManager {
             const newRequest = new RequestContest(game);
             this._requests.insert(newRequest);
             newRequest.setTargetRequestId(requestId);
-            request.setStatus(Request.STATUS_CONTESTED);
             newRequest.setAuthorId(request.getTargetId());
             newRequest.setTargetId(request.getAuthorId());
             requestManager.addRequestToStack(
