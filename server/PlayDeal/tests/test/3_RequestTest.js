@@ -14,6 +14,7 @@ const {
     findAllCardsWithKey,
     clearDeckAndHands,
     dumpPlayerHand,
+    dumpRequests,
     dumpCards,
 } = require("../../src/utils/cardMethods");
 
@@ -104,13 +105,11 @@ describe("Requests", () => {
         const p2BdayRequest = requestManager.findRequest((request) => {
             return request.getTargetId() === player2Id;
         });
-
         const player2TargetedBirthdayRequestId = p2BdayRequest.getId();
         const player2FirstNopeCard = player2Hand.findCard("NOPE");
         const player2FirstNopeCardSelection = game
             .makeCardSelection()
             .addSelection(CardSelection.TYPE_ACTION, player2FirstNopeCard);
-
         game.contestRequest(
             player2Id,
             player2TargetedBirthdayRequestId,
@@ -120,21 +119,45 @@ describe("Requests", () => {
         // should be contested
         assert.equal(p2BdayRequest.getStatus(), Request.STATUS_CONTESTED);
 
+        // nope request must be open
         const p2NopeCounterRequest = requestManager.findRequest((request) => {
             return (
                 request.getAuthorId() === player2Id &&
                 request.getTargetId() === player1Id
             );
         });
-
-        // nope request must be open
         assert.equal(
             p2NopeCounterRequest.getStatus(),
             Request.STATUS_REQUESTING
         );
 
+        game.contestRequest(
+            player1Id,
+            p2NopeCounterRequest.getId(),
+            game
+                .makeCardSelection()
+                .addSelection(
+                    CardSelection.TYPE_ACTION,
+                    player1Hand.findCard("NOPE")
+                )
+        );
+        // first nope must be contested
+        assert.equal(
+            p2NopeCounterRequest.getStatus(),
+            Request.STATUS_CONTESTED
+        );
+
+        const request2ndNopeId = 4;
+        const request2ndNope = requestManager.getRequest(request2ndNopeId);
+        assert.equal(request2ndNope.getStatus(), Request.STATUS_REQUESTING);
+        assert.equal(
+            request2ndNope.getTargetRequestId(),
+            p2NopeCounterRequest.getId()
+        );
+
+        dumpRequests(game);
         /*// @TODO
-    
-        */
+
+            */
     });
 });

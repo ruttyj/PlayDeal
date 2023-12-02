@@ -73,6 +73,13 @@ const dumpPlayerBank = (game, playerId = 1) => {
     );
 };
 
+const dumpRequests = (game) => {
+    const requestManager = game.getRequestManager();
+    requestManager
+        .filterRequests((request) => true)
+        .forEach((request) => console.log(request.serialize()));
+};
+
 const dumpCards = (game, cards) => {
     console.log(cards.map((c) => c.serialize()));
 };
@@ -91,6 +98,7 @@ module.exports = {
     dumpPlayerHand,
     dumpPlayerBank,
     dumpCollection,
+    dumpRequests,
 
     dumpCards,
 };

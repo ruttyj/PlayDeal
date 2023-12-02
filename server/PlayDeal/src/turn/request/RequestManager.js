@@ -138,6 +138,16 @@ module.exports = class RequestManager {
             // Create contest request
             const newRequest = new RequestContest(game);
             this._requests.insert(newRequest);
+            const requestStack = this.getRequestStack(
+                request.getRequestStackId()
+            );
+            newRequest.setRequestStackId(requestStack.getId());
+            requestStack.pushRequestId(newRequest.getId());
+
+            if (contestCard.hasTag(Card.TAG_CONTESTABLE)) {
+                newRequest.setIsContestable(true);
+            }
+
             newRequest.setTargetRequestId(requestId);
             newRequest.setAuthorId(request.getTargetId());
             newRequest.setTargetId(request.getAuthorId());
@@ -145,6 +155,7 @@ module.exports = class RequestManager {
                 newRequest.getId(),
                 request.getRequestStackId()
             );
+
             return true;
         }
 

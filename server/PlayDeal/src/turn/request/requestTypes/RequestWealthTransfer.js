@@ -71,8 +71,8 @@ module.exports = class RequestWealthTransfer extends Request {
         //@TODO
 
         // Conclude tranasction
-        super.accept();
         */
+        super.accept();
     }
 
     decline() {
