@@ -782,6 +782,7 @@ module.exports = class PlayDeal {
     acceptRequest(playerId, requestId, responseObject) {}
 
     contestRequest(playerId, requestId, cardSelection) {
+        const game = this;
         const requestManager = game.getRequestManager();
         return requestManager.contestRequest(
             playerId,

@@ -1,5 +1,9 @@
 const AutoIncRepo = require("../../base/AutoIncRepo");
 const RequestStack = require("./RequestStack");
+const Request = require("../../turn/request/Request");
+const RequestContest = require("../request/requestTypes/RequestContest");
+const CardSelection = require("../../card/CardSelection");
+const Card = require("../../card/Card");
 
 module.exports = class RequestManager {
     constructor(game) {
@@ -25,7 +29,7 @@ module.exports = class RequestManager {
     }
 
     getRequestStack(stackId) {
-        return this._requestStacks(stackId);
+        return this._requestStacks.get(stackId);
     }
 
     addRequestToStack(requestId, stackId) {
@@ -45,6 +49,22 @@ module.exports = class RequestManager {
                 result.push(request);
             }
         });
+
+        return result;
+    }
+
+    findRequest(fn) {
+        let result = null;
+        try {
+            this._requests.forEach((request) => {
+                if (fn(request)) {
+                    result = request;
+                    throw "break loop";
+                }
+            });
+        } catch {
+            // NOPE
+        }
 
         return result;
     }
@@ -74,7 +94,7 @@ module.exports = class RequestManager {
         const game = this._game;
         const requestManager = this;
         const playerManager = game.getPlayerManager();
-        const playerHand = playerManager.getPlayerBank(playerId);
+        const playerHand = playerManager.getPlayerHand(playerId);
         const request = requestManager.getRequest(requestId);
         const activePile = game.getActivePile();
 
@@ -117,7 +137,9 @@ module.exports = class RequestManager {
 
             // Create contest request
             const newRequest = new RequestContest(game);
+            this._requests.insert(newRequest);
             newRequest.setTargetRequestId(requestId);
+            request.setStatus(Request.STATUS_CONTESTED);
             newRequest.setAuthorId(request.getTargetId());
             newRequest.setTargetId(request.getAuthorId());
             requestManager.addRequestToStack(

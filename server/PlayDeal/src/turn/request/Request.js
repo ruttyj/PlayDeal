@@ -3,6 +3,7 @@ const Model = require("../../base/Model");
 module.exports = class Request extends Model {
     static TYPE_REQUEST_VALUE = "requestValue";
     static TYPE_REQUEST_RENT = "requestRent";
+    static TYPE_REQUEST_CONTEST = "contest";
 
     static STATUS_REQUESTING = "requesting";
     static STATUS_CONTESTED = "contested";

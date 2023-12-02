@@ -5,6 +5,8 @@ const runThisTest = true;
 
 const PlayDeal = require("../../src/Game");
 const Card = require("../../src/card/Card");
+const CardSelection = require("../../src/card/CardSelection");
+const Request = require("../../src/turn/request/Request");
 
 const {
     findAllCardsOfSet,
@@ -73,48 +75,66 @@ const make3PlayerGame3Contest = () => {
     };
 };
 
-describe("Tripple Contest Happy Birthday", () => {
-    const player1Id = 1;
-    const player2Id = 2;
+describe("Requests", () => {
+    it("Tripple Contest Happy Birthday", () => {
+        const { game } = make3PlayerGame3Contest();
+        const requestManager = game.getRequestManager();
+        const turn = game.getTurn();
 
-    const { game, ci, cards } = make3PlayerGame3Contest();
+        const player1Id = 1;
+        const player2Id = 2;
 
-    const player1Hand = game.getPlayerHand(player1Id);
-    const player2Hand = game.getPlayerHand(player2Id);
+        const player1Hand = game.getPlayerHand(player1Id);
+        const player2Hand = game.getPlayerHand(player2Id);
 
-    const player1Birthday = player1Hand.findCard("BIRTHDAY");
-    const player2Cash = player2Hand.findCard("CASH_2");
+        // Add Cash_2 to bank
+        const player2Cash = player2Hand.findCard("CASH_2");
+        game.getPlayerBank(player2Id).addCard(
+            player2Hand.giveCard(player2Cash)
+        );
 
-    // Add Cash_2 to bank
-    game.getPlayerBank(player2Id).addCard(player2Hand.giveCard(player2Cash));
+        // Start turn
+        game.dealTurnStartingCards();
 
-    const turn = game.getTurn();
-    console.log(turn.serialize());
+        // Charge for Birthday presant
+        const player1Birthday = player1Hand.findCard("BIRTHDAY");
+        game.chargePlayerValue(player1Birthday.getId(), player2Id);
 
-    // Start turn
-    game.dealTurnStartingCards();
-
-    // Charge for Birthday presant
-    game.chargePlayerValue(player1Birthday.getId(), player2Id);
-
-    const requestManager = game.getRequestManager();
-
-    const player2TargetedBirthdayRequests = requestManager.filterRequests(
-        (request) => {
+        // Handle player 2 request
+        const p2BdayRequest = requestManager.findRequest((request) => {
             return request.getTargetId() === player2Id;
-        }
-    );
-    const player2TargetedBirthdayRequestId =
-        player2TargetedBirthdayRequests[0].getId();
+        });
 
-    const player2NopeFirst = player2Hand.findCard("NOPE");
+        const player2TargetedBirthdayRequestId = p2BdayRequest.getId();
+        const player2FirstNopeCard = player2Hand.findCard("NOPE");
+        const player2FirstNopeCardSelection = game
+            .makeCardSelection()
+            .addSelection(CardSelection.TYPE_ACTION, player2FirstNopeCard);
 
-    //game.payRequest(player2Id, player2TargetedBirthdayRequestId, )
+        game.contestRequest(
+            player2Id,
+            player2TargetedBirthdayRequestId,
+            player2FirstNopeCardSelection
+        );
 
-    /*
+        // should be contested
+        assert.equal(p2BdayRequest.getStatus(), Request.STATUS_CONTESTED);
+
+        const p2NopeCounterRequest = requestManager.findRequest((request) => {
+            return (
+                request.getAuthorId() === player2Id &&
+                request.getTargetId() === player1Id
+            );
+        });
+
+        // nope request must be open
+        assert.equal(
+            p2NopeCounterRequest.getStatus(),
+            Request.STATUS_REQUESTING
+        );
+
+        /*// @TODO
     
-    
-    */
-
-    // @TODO
+        */
+    });
 });

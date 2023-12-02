@@ -8,7 +8,7 @@ module.exports = class CardSelection {
     constructor(game) {
         this._game = game;
         this._cardManager = this._game.getCardManager();
-        this._selectionMap == new Map();
+        this._selectionMap = new Map();
     }
 
     static getAllTypes() {

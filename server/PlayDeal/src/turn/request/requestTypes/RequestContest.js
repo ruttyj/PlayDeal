@@ -16,8 +16,6 @@ module.exports = class RequestContest extends Request {
 
         const requestManager = this._game.getRequestManager();
         const targetRequest = requestManager.getRequest(value);
-
-        targetRequest.setStatus(Request.STATUS_CONTESTED);
     }
 
     getTargetRequestId() {
@@ -43,6 +41,8 @@ module.exports = class RequestContest extends Request {
         const targetRequest = requestManager.getRequest(
             this.getTargetRequestId()
         );
+
+        // Reopen parent request
         targetRequest.setStatus(Request.STATUS_REQUESTING);
         super.decline();
     }

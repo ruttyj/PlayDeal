@@ -180,6 +180,13 @@ module.exports = class CardContainer {
         return this.giveCard(this.getTopCard());
     }
 
+    forEach(fn) {
+        this._items.forEach((unused, cardId) => {
+            const card = this.getCard(cardId);
+            fn(card);
+        });
+    }
+
     findCard(fn) {
         if (typeof fn === "string") {
             return this.findCardWithKey(fn);
@@ -188,7 +195,7 @@ module.exports = class CardContainer {
         let result = null;
 
         try {
-            this._items.forEach((junk, cardId) => {
+            this._items.forEach((unused, cardId) => {
                 const card = this.getCard(cardId);
                 if (fn(card)) {
                     result = card;
@@ -196,7 +203,7 @@ module.exports = class CardContainer {
                 }
             });
         } catch {
-            // nope
+            // NOPE
         }
 
         return result;
