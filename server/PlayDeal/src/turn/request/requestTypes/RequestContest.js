@@ -3,6 +3,7 @@ const Request = require("../Request");
 module.exports = class RequestContest extends Request {
     constructor(game) {
         super(game);
+        this._type = Request.TYPE_REQUEST_CONTEST;
         this._targetRequestId = null;
     }
 
@@ -16,6 +17,7 @@ module.exports = class RequestContest extends Request {
 
         const requestManager = this._game.getRequestManager();
         const targetRequest = requestManager.getRequest(value);
+        targetRequest.setStatus(Request.STATUS_CONTESTED);
     }
 
     getTargetRequestId() {
