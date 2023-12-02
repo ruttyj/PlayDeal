@@ -11,7 +11,7 @@ module.exports = class CardSelection {
         this._selectionMap == new Map();
     }
 
-    _getAllTypes() {
+    static getAllTypes() {
         return [
             CardSelection.TYPE_ACTION,
             CardSelection.TYPE_BANK,

@@ -6,7 +6,6 @@ module.exports = class RequestValue extends RequestWealthTransfer {
         super(game);
         this._type = Request.TYPE_REQUEST_VALUE;
         this._value = 0;
-        this._collectionId = null;
     }
 
     //===============================================

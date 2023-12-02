@@ -123,7 +123,7 @@ module.exports = class Turn {
         requestManager
             .getRequestsByPlayerId(this.getPlayerId())
             .forEach((request) => {
-                if (!request.isSatified() || !request.isClosed()) {
+                if (!request.isPhaseComplete()) {
                     isDone = false;
                 }
             });

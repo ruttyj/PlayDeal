@@ -19,7 +19,7 @@ const Transfer = require("./turn/request/Transfer");
  *
  * =====================================================
  */
-module.exports = class Game {
+module.exports = class PlayDeal {
     static SCENARIO_CASH_ONLY = "cashOnly";
     static SCENARIO_PROPERTY_ONLY = "propertyOnly";
     static SCENARIO_PROPERTY_PLUS_WILD = "propertyPlusWild";
@@ -37,7 +37,7 @@ module.exports = class Game {
         this._activePile = new CardContainer(this._cardManager);
         this._discardPile = new CardContainer(this._cardManager);
 
-        this._scenario = Game.SCENARIO_DEFAULT;
+        this._scenario = PlayDeal.SCENARIO_DEFAULT;
         this._minPlayerLimit = 2; // min players to start a game
         this._gameStartingCardCount = 5; // cards given to player at beginning of game
         this._turnStartingCardCount = 2; // number of cards to be collected on turn start
@@ -135,31 +135,31 @@ module.exports = class Game {
 
         switch (this._scenario) {
             // CASH
-            case Game.SCENARIO_CASH_ONLY:
+            case PlayDeal.SCENARIO_CASH_ONLY:
                 cardLoadout = CardManager.SCENARIO_CASH_ONLY;
                 break;
 
             // PROPERTY + CASH
-            case Game.SCENARIO_PROPERTY_CASH:
+            case PlayDeal.SCENARIO_PROPERTY_CASH:
                 cardLoadout = CardManager.SCENARIO_PROPERTY_CASH;
                 break;
 
             // PROPERTY
-            case Game.SCENARIO_PROPERTY_ONLY:
+            case PlayDeal.SCENARIO_PROPERTY_ONLY:
                 cardLoadout = CardManager.SCENARIO_PROPERTY_ONLY;
                 break;
 
             // PROPERTY + WILD
-            case Game.SCENARIO_PROPERTY_PLUS_WILD:
+            case PlayDeal.SCENARIO_PROPERTY_PLUS_WILD:
                 cardLoadout = CardManager.SCENARIO_PROPERTY_PLUS_WILD;
                 break;
 
             // PROPERTY + WILD + CASH + ACTION
-            case Game.SCENARIO_PROPERTY_WILD_CASH_ACTION:
+            case PlayDeal.SCENARIO_PROPERTY_WILD_CASH_ACTION:
                 cardLoadout = CardManager.SCENARIO_PROPERTY_WILD_CASH_ACTION;
                 break;
 
-            case Game.SCENARIO_DEFAULT:
+            case PlayDeal.SCENARIO_DEFAULT:
             default:
                 cardLoadout = CardManager.SCENARIO_DEFAULT;
         }
@@ -178,6 +178,23 @@ module.exports = class Game {
 
     getPropertySet(propertySetId) {
         return this._cardManager.getPropertySet(propertySetId);
+    }
+
+    makeCardSelection(selectionParams = {}) {
+        const cardSelection = new CardSelection(this);
+
+        if (typeof selectionParams === "Object") {
+            CardSelection.getAllTypes().forEach((cardType) => {
+                if (selectionParams[cardType]) {
+                    cardSelection.addSelection(
+                        cardType,
+                        selectionParams[cardType]
+                    );
+                }
+            });
+        }
+
+        return cardSelection;
     }
 
     //===============================================
@@ -764,11 +781,13 @@ module.exports = class Game {
 
     acceptRequest(playerId, requestId, responseObject) {}
 
-    contestRequest(playerId, requestId, responseObject) {
-        /*
-        CardSelection
-        @TODO 
-        */
+    contestRequest(playerId, requestId, cardSelection) {
+        const requestManager = game.getRequestManager();
+        return requestManager.contestRequest(
+            playerId,
+            requestId,
+            cardSelection
+        );
     }
 
     claimRequest(playerId, requestId) {}
@@ -792,7 +811,7 @@ module.exports = class Game {
             return null;
         }
 
-        // Can only pay if request is not satisfied and being requested
+        // Can only pay if request if not satisfied and being requested
         if (request.getStatus() !== Request.STATUS_REQUESTING) {
             return null;
         }

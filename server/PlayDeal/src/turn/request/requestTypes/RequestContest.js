@@ -12,7 +12,12 @@ module.exports = class RequestContest extends Request {
 
     //===============================================
     setTargetRequestId(value) {
-        this._collectionId = value;
+        this._targetRequestId = value;
+
+        const requestManager = this._game.getRequestManager();
+        const targetRequest = requestManager.getRequest(value);
+
+        targetRequest.setStatus(Request.STATUS_CONTESTED);
     }
 
     getTargetRequestId() {
@@ -27,21 +32,19 @@ module.exports = class RequestContest extends Request {
     accept() {
         const requestManager = this._game.getRequestManager();
         const targetRequest = requestManager.getRequest(
-            this.getTargetRequestId
+            this.getTargetRequestId()
         );
-        if (targetRequest) {
-            targetRequest.decline();
-        }
+        targetRequest.decline();
+        super.accept();
     }
 
     decline() {
         const requestManager = this._game.getRequestManager();
         const targetRequest = requestManager.getRequest(
-            this.getTargetRequestId
+            this.getTargetRequestId()
         );
-        if (targetRequest) {
-            targetRequest.accept();
-        }
+        targetRequest.setStatus(Request.STATUS_REQUESTING);
+        super.decline();
     }
 
     //===============================================

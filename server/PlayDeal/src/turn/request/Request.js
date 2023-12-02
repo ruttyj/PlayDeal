@@ -21,6 +21,15 @@ module.exports = class Request extends Model {
         this._status = Request.STATUS_REQUESTING;
         this._isSatisfied = false; // target has satisfied the request - parties may claim their rewards
         this._isClosed = false; // is completly over and done with
+        this._requestStackId = null;
+    }
+
+    setRequestStackId(stackId) {
+        this._requestStackId = stackId;
+    }
+
+    getRequestStackId() {
+        return this._requestStackId;
     }
 
     //===============================================
@@ -121,6 +130,19 @@ module.exports = class Request extends Model {
 
     isClosed() {
         return this._isClosed;
+    }
+
+    //===============================================
+
+    //                Phase Complete
+
+    //===============================================
+    /**
+     * Is request done for this phase
+     * @returns Boolean
+     */
+    isPhaseComplete() {
+        return request.isSatified() && request.isClosed();
     }
 
     //===============================================

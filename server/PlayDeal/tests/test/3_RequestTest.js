@@ -3,7 +3,7 @@ const { describe, it } = require("mocha");
 
 const runThisTest = true;
 
-const Game = require("../../src/Game");
+const PlayDeal = require("../../src/Game");
 const Card = require("../../src/card/Card");
 
 const {
@@ -22,9 +22,9 @@ if (runThisTest) {
 }
 
 const make3PlayerActionTestGame = () => {
-    const game = new Game();
+    const game = new PlayDeal();
     game.setSeed("test");
-    game.setScenario(Game.SCENARIO_PROPERTY_WILD_CASH_ACTION);
+    game.setScenario(PlayDeal.SCENARIO_PROPERTY_WILD_CASH_ACTION);
 
     game.addPlayer();
     game.addPlayer();
