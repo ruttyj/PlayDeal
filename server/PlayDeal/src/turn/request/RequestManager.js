@@ -146,7 +146,6 @@ module.exports = class RequestManager {
             // Create Contest request
             const newRequest = new RequestContest(game);
             newRequest.setTargetRequestId(requestId);
-            newRequest.setRequestStackId(requestStack.getId());
             if (contestCard.hasTag(Card.TAG_CONTESTABLE)) {
                 newRequest.setIsContestable(true);
             }
