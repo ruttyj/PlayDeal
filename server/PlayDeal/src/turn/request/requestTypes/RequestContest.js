@@ -35,6 +35,7 @@ module.exports = class RequestContest extends Request {
             this.getTargetRequestId()
         );
         targetRequest.decline();
+        this.setClosed(true);
         super.accept();
     }
 
@@ -44,8 +45,15 @@ module.exports = class RequestContest extends Request {
             this.getTargetRequestId()
         );
 
-        // Reopen parent request
-        targetRequest.setStatus(Request.STATUS_REQUESTING);
+        if (targetRequest.getType() === Request.TYPE_REQUEST_CONTEST) {
+            // Accept previous
+            targetRequest.accept();
+            this.setClosed(true);
+        } else {
+            // Reopen parent request
+            targetRequest.setStatus(Request.STATUS_REQUESTING);
+        }
+
         super.decline();
     }
 

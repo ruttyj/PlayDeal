@@ -23,6 +23,23 @@ module.exports = class RequestValue extends RequestWealthTransfer {
 
     //===============================================
 
+    //              Resolve Methods
+
+    //===============================================
+    accept() {
+        const requestManager = this._game.getRequestManager();
+
+        super.accept();
+    }
+
+    decline() {
+        const requestManager = this._game.getRequestManager();
+        this.setClosed(true);
+        super.decline();
+    }
+
+    //===============================================
+
     //                  Serialize
 
     //===============================================

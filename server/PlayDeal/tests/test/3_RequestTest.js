@@ -155,7 +155,47 @@ describe("Requests", () => {
             p2NopeCounterRequest.getId()
         );
 
+        const trippleNopeRequest = game.contestRequest(
+            player2Id,
+            request2ndNopeId,
+            game
+                .makeCardSelection()
+                .addSelection(
+                    CardSelection.TYPE_ACTION,
+                    player2Hand.findCard("NOPE")
+                )
+        );
+        const trippleNopeRequestId = trippleNopeRequest.getId();
+        assert.equal(request2ndNope.getStatus(), Request.STATUS_CONTESTED);
+        assert.equal(trippleNopeRequest.getStatus(), Request.STATUS_REQUESTING);
+
+        // Accept the most recent nope
+        game.acceptRequest(player1Id, trippleNopeRequestId);
+        assert.equal(
+            requestManager.getRequest(5).getStatus(),
+            Request.STATUS_ACCEPTED
+        );
+        assert.equal(
+            requestManager.getRequest(4).getStatus(),
+            Request.STATUS_DECLINED
+        );
+        assert.equal(
+            requestManager.getRequest(3).getStatus(),
+            Request.STATUS_ACCEPTED
+        );
+        assert.equal(
+            requestManager.getRequest(1).getStatus(),
+            Request.STATUS_DECLINED
+        );
+
+        [5, 4, 3, 1].forEach((requestId) => {
+            const request = requestManager.getRequest(requestId);
+            assert.equal(request.isSatisfied(), true);
+            assert.equal(request.isClosed(), true);
+        });
+
         dumpRequests(game);
+
         /*// @TODO
 
             */

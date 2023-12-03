@@ -715,7 +715,7 @@ module.exports = class PlayDeal {
                 newRequest.setIsContestable(true);
             }
 
-            requestManager.createNewRequestStack(newRequest);
+            requestManager.createNewRequestOnNewStack(newRequest);
         });
     }
 
@@ -775,13 +775,17 @@ module.exports = class PlayDeal {
                 newRequest.setIsContestable(true);
             }
 
-            requestManager.createNewRequestStack(newRequest);
+            requestManager.createNewRequestOnNewStack(newRequest);
         });
     }
 
-    acceptRequest(playerId, requestId, responseObject) {}
+    acceptRequest(playerId, requestId, cardSelection) {
+        const game = this;
+        const requestManager = game.getRequestManager();
+        return requestManager.acceptRequest(playerId, requestId, cardSelection);
+    }
 
-    contestRequest(playerId, requestId, cardSelection) {
+    contestRequest(playerId, requestId, cardSelection = null) {
         const game = this;
         const requestManager = game.getRequestManager();
         return requestManager.contestRequest(

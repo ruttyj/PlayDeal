@@ -17,24 +17,28 @@ module.exports = class RequestManager {
     //                Request Stack
 
     //===============================================
-    createNewRequestStack(request) {
+    createNewRequestOnNewStack(request) {
         this._requests.insert(request);
 
-        const reqStack = new RequestStack(this._game);
-        this._requestStacks.insert(reqStack);
-        reqStack.pushRequestId(request.getId());
-        request.setRequestStackId(reqStack.getId());
+        const requestStack = new RequestStack(this._game);
+        this._requestStacks.insert(requestStack);
 
-        return reqStack;
+        requestStack.pushRequestId(request.getId());
+        request.setRequestStackId(requestStack.getId());
+    }
+
+    createNewRequestOnStack(request, requestStack) {
+        this._requests.insert(request);
+
+        const requestId = request.getId();
+        const requestStackId = requestStack.getId();
+
+        requestStack.pushRequestId(requestId);
+        request.setRequestStackId(requestStackId);
     }
 
     getRequestStack(stackId) {
         return this._requestStacks.get(stackId);
-    }
-
-    addRequestToStack(requestId, stackId) {
-        const requestStack = this.getRequestStack(stackId);
-        requestStack.pushRequestId(requestId);
     }
 
     //===============================================
@@ -95,21 +99,21 @@ module.exports = class RequestManager {
         const requestManager = this;
         const playerManager = game.getPlayerManager();
         const playerHand = playerManager.getPlayerHand(playerId);
-        const request = requestManager.getRequest(requestId);
+        const originalRequest = requestManager.getRequest(requestId);
         const activePile = game.getActivePile();
 
         // Only target player can pay
-        if (request.getTargetId() !== playerId) {
-            return false;
+        if (originalRequest.getTargetId() !== playerId) {
+            return null;
         }
 
-        if (!request.isContestable()) {
-            return false;
+        if (!originalRequest.isContestable()) {
+            return null;
         }
 
         // Can only pay if request if not satisfied and being requested
-        if (request.getStatus() !== Request.STATUS_REQUESTING) {
-            return false;
+        if (originalRequest.getStatus() !== Request.STATUS_REQUESTING) {
+            return null;
         }
 
         const actionCards = cardSelection.getSelection(
@@ -136,30 +140,39 @@ module.exports = class RequestManager {
             activePile.addCard(playerHand.giveCard(contestCard));
 
             // Create contest request
-            const newRequest = new RequestContest(game);
-            this._requests.insert(newRequest);
-            const requestStack = this.getRequestStack(
-                request.getRequestStackId()
-            );
-            newRequest.setRequestStackId(requestStack.getId());
-            requestStack.pushRequestId(newRequest.getId());
+            const requestStackId = originalRequest.getRequestStackId();
+            const requestStack = this.getRequestStack(requestStackId);
 
+            // Create Contest request
+            const newRequest = new RequestContest(game);
+            newRequest.setTargetRequestId(requestId);
+            newRequest.setRequestStackId(requestStack.getId());
             if (contestCard.hasTag(Card.TAG_CONTESTABLE)) {
                 newRequest.setIsContestable(true);
             }
+            newRequest.setAuthorId(originalRequest.getTargetId());
+            newRequest.setTargetId(originalRequest.getAuthorId());
 
-            newRequest.setTargetRequestId(requestId);
-            newRequest.setAuthorId(request.getTargetId());
-            newRequest.setTargetId(request.getAuthorId());
-            requestManager.addRequestToStack(
-                newRequest.getId(),
-                request.getRequestStackId()
-            );
+            requestManager.createNewRequestOnStack(newRequest, requestStack);
 
-            return true;
+            return newRequest;
         }
 
-        return false;
+        return null;
+    }
+
+    acceptRequest(playerId, requestId, cardSelection = null) {
+        const game = this._game;
+        const requestManager = this;
+        const originalRequest = requestManager.getRequest(requestId);
+
+        switch (originalRequest.getType()) {
+            case Request.TYPE_REQUEST_CONTEST:
+                originalRequest.accept();
+                break;
+            default:
+            // NOPE
+        }
     }
 
     //===============================================
