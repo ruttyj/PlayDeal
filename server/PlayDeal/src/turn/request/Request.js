@@ -148,6 +148,15 @@ module.exports = class Request extends Model {
 
     //===============================================
 
+    //                User Actions
+
+    //===============================================
+    comply(cardSelection) {}
+
+    contest(cardSelection) {}
+
+    //===============================================
+
     //              Resolve Methods
 
     //===============================================
@@ -155,8 +164,6 @@ module.exports = class Request extends Model {
         this.setIsSatisfied(true);
         this.setStatus(Request.STATUS_ACCEPTED);
     }
-
-    contest() {}
 
     decline() {
         this.setIsSatisfied(true);

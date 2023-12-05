@@ -193,11 +193,48 @@ describe("Requests", () => {
             assert.equal(request.isSatisfied(), true);
             assert.equal(request.isClosed(), true);
         });
+    });
+
+    it("Accept Happy Birthday", () => {
+        const { game } = make3PlayerGame3Contest();
+        const requestManager = game.getRequestManager();
+        const turn = game.getTurn();
+
+        const player1Id = 1;
+        const player2Id = 2;
+
+        const player1Hand = game.getPlayerHand(player1Id);
+        const player2Hand = game.getPlayerHand(player2Id);
+
+        // Add Cash_2 to bank
+        const player2Cash = player2Hand.findCard("CASH_2");
+        const player2Bank = game.getPlayerBank(player2Id);
+        player2Bank.addCard(player2Hand.giveCard(player2Cash));
+
+        // Start turn
+        game.dealTurnStartingCards();
+
+        // Charge for Birthday presant
+        const player1Birthday = player1Hand.findCard("BIRTHDAY");
+        game.chargePlayerValue(player1Birthday.getId(), player2Id);
+
+        // Handle player 2 request
+        const p2BdayRequest = requestManager.findRequest((request) => {
+            return request.getTargetId() === player2Id;
+        });
+        const player2TargetedBirthdayRequestId = p2BdayRequest.getId();
+        game.acceptRequest(
+            player2Id,
+            player2TargetedBirthdayRequestId,
+            game
+                .makeCardSelection()
+                .addSelection(CardSelection.TYPE_BANK, player2Cash)
+        );
 
         dumpRequests(game);
 
         /*// @TODO
 
-            */
+          */
     });
 });

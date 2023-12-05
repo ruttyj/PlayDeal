@@ -26,6 +26,17 @@ module.exports = class RequestContest extends Request {
 
     //===============================================
 
+    //                User Actions
+
+    //===============================================
+    comply(cardSelection) {
+        const game = this.getGameRef();
+        const requestManager = game.getRequestManager();
+        this.accept();
+    }
+
+    //===============================================
+
     //              Resolve Methods
 
     //===============================================

@@ -124,11 +124,10 @@ module.exports = class RequestManager {
         let hasValidContestCard = false;
         let contestCard = null;
         actionCards.forEach((card) => {
-            const cardIsConestable = card.hasTag(Card.TAG_CONTESTABLE);
             const cardCanDeclineRequest = card.hasTag(Card.TAG_DECLINE_REQUEST);
             const isInPlayersHand = playerHand.hasCard(card);
 
-            if (isInPlayersHand && cardIsConestable && cardCanDeclineRequest) {
+            if (isInPlayersHand && cardCanDeclineRequest) {
                 hasValidContestCard = true;
                 contestCard = card;
             }
@@ -167,7 +166,15 @@ module.exports = class RequestManager {
 
         switch (originalRequest.getType()) {
             case Request.TYPE_REQUEST_CONTEST:
-                originalRequest.accept();
+                originalRequest.comply(cardSelection);
+                break;
+            case Request.TYPE_REQUEST_VALUE:
+                /*
+                const wealthTransfer = originalRequest.getWealthTransfer();
+                const transferToAuthor = wealthTransfer.getTransferDirection(
+                    WealthTransfer.DIRECTION_AUTHOR
+                );
+                */
                 break;
             default:
             // NOPE

@@ -76,8 +76,7 @@ module.exports = class RequestWealthTransfer extends Request {
     }
 
     decline() {
-        const game = this.getGameRef();
-
+        this.setClosed(true);
         super.decline();
     }
 
