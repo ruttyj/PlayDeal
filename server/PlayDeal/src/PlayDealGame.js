@@ -29,7 +29,7 @@ module.exports = class PlayDealGame {
 
     constructor() {
         this._cardManager = new CardManager();
-        this._playerManager = new PlayerManager(this._cardManager);
+        this._playerManager = new PlayerManager(this);
         this._turnManager = new TurnManager(this);
         this._rng = new RandomNumberGen(); // keep random numbers reproducable
 

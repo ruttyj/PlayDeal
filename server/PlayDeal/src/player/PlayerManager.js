@@ -5,13 +5,13 @@ const CardContainer = require("../card/CardContainer");
 const Collection = require("../card/Collection");
 
 module.exports = class PlayerManager {
-    constructor(cardManager) {
+    constructor(game) {
         this._players = new AutoIncRepo();
         this._playerCollections = new AutoIncRepo();
         this._playerCollectionMap = new Map();
         this._playerHands = new Repo();
         this._playerBanks = new Repo();
-        this._cardManager = cardManager;
+        this._cardManager = game.getCardManager();
     }
 
     setup() {
