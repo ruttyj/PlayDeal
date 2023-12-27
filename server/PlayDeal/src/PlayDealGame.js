@@ -15,7 +15,7 @@ const Transfer = require("./turn/request/Transfer");
 /**
  * =====================================================
  *
- *                     PlayDealGame Game
+ *                     PlayDeal Game
  *
  * =====================================================
  */
