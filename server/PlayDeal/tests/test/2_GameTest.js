@@ -3,7 +3,7 @@ const { describe, it } = require("mocha");
 
 const runThisTest = true;
 
-const PlayDeal = require("../../src/Game");
+const PlayDealGame = require("../../src/PlayDealGame");
 const Turn = require("../../src/turn/Turn");
 const Card = require("../../src/card/Card");
 const Request = require("../../src/turn/request/Request");
@@ -34,9 +34,9 @@ const log = (item) => {
 };
 
 const makeCashOnlyGame = () => {
-    const game = new PlayDeal();
+    const game = new PlayDealGame();
     game.setSeed("test");
-    game.setScenario(PlayDeal.SCENARIO_CASH_ONLY);
+    game.setScenario(PlayDealGame.SCENARIO_CASH_ONLY);
 
     game.addPlayer();
     game.addPlayer();
@@ -47,9 +47,9 @@ const makeCashOnlyGame = () => {
 };
 
 const makePropertyOnlyGame = () => {
-    const game = new PlayDeal();
+    const game = new PlayDealGame();
     game.setSeed("test");
-    game.setScenario(PlayDeal.SCENARIO_PROPERTY_ONLY);
+    game.setScenario(PlayDealGame.SCENARIO_PROPERTY_ONLY);
 
     game.addPlayer();
     game.addPlayer();
@@ -60,9 +60,9 @@ const makePropertyOnlyGame = () => {
 };
 
 const makePropertyPlusWildGame = () => {
-    const game = new PlayDeal();
+    const game = new PlayDealGame();
     game.setSeed("test");
-    game.setScenario(PlayDeal.SCENARIO_PROPERTY_PLUS_WILD);
+    game.setScenario(PlayDealGame.SCENARIO_PROPERTY_PLUS_WILD);
 
     game.addPlayer();
     game.addPlayer();
@@ -354,9 +354,9 @@ if (runThisTest) {
         });
 
         it("Place card in bank from hand", () => {
-            const game = new PlayDeal();
+            const game = new PlayDealGame();
             game.setSeed("test");
-            game.setScenario(PlayDeal.SCENARIO_PROPERTY_CASH);
+            game.setScenario(PlayDealGame.SCENARIO_PROPERTY_CASH);
 
             game.addPlayer();
             game.addPlayer();
@@ -651,9 +651,9 @@ if (runThisTest) {
     describe("Requests", () => {
         it("(INCOMPLETE) Should collect all payment paid in cash before turn end", () => {
             // Make game ==============================
-            const game = new PlayDeal();
+            const game = new PlayDealGame();
             game.setSeed("test");
-            game.setScenario(PlayDeal.SCENARIO_PROPERTY_WILD_CASH_ACTION);
+            game.setScenario(PlayDealGame.SCENARIO_PROPERTY_WILD_CASH_ACTION);
 
             game.addPlayer();
             game.addPlayer();

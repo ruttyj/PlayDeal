@@ -1,9 +1,16 @@
 const CardContainer = require("./CardContainer");
 
-module.exports = class CardSelection {
+module.exports = class SelectionContext {
+    // Cards
     static TYPE_ACTION = "action";
     static TYPE_BANK = "bank";
     static TYPE_PROPERTY = "property";
+
+    // Request
+    static TYPE_REQUEST = "request";
+
+    // Collections
+    // @TODO
 
     constructor(game) {
         this._game = game;
@@ -11,11 +18,11 @@ module.exports = class CardSelection {
         this._selectionMap = new Map();
     }
 
-    static getAllTypes() {
+    static getAllCardTypes() {
         return [
-            CardSelection.TYPE_ACTION,
-            CardSelection.TYPE_BANK,
-            CardSelection.TYPE_PROPERTY,
+            SelectionContext.TYPE_ACTION,
+            SelectionContext.TYPE_BANK,
+            SelectionContext.TYPE_PROPERTY,
         ];
     }
 
@@ -32,14 +39,30 @@ module.exports = class CardSelection {
     }
 
     addSelection(selectionType, values) {
+        const isRequestType = selectionType === SelectionContext.TYPE_REQUEST;
+
         let selectionContainer;
         if (this.hasSelection(selectionType)) {
             selectionContainer = this.getSelection(selectionType);
         } else {
-            selectionContainer = new CardContainer(this._cardManager);
+            if (isRequestType) {
+                selectionContainer = new Map();
+            } else {
+                selectionContainer = new CardContainer(this._cardManager);
+            }
         }
 
-        selectionContainer.addCards(values);
+        if (isRequestType) {
+            if (Array.isArray(values)) {
+                values.forEeach((value) => {
+                    selectionContainer.set(value);
+                });
+            } else {
+                selectionContainer.set(value);
+            }
+        } else {
+            selectionContainer.addCards(values);
+        }
 
         this._selectionMap.set(selectionType, selectionContainer);
 

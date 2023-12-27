@@ -3,9 +3,9 @@ const { describe, it } = require("mocha");
 
 const runThisTest = true;
 
-const PlayDeal = require("../../src/Game");
+const PlayDealGame = require("../../src/PlayDealGame");
 const Card = require("../../src/card/Card");
-const CardSelection = require("../../src/card/CardSelection");
+const SelectionContext = require("../../src/card/SelectionContext");
 const Request = require("../../src/turn/request/Request");
 
 const {
@@ -25,9 +25,9 @@ if (runThisTest) {
 }
 
 const make3PlayerActionTestGame = () => {
-    const game = new PlayDeal();
+    const game = new PlayDealGame();
     game.setSeed("test");
-    game.setScenario(PlayDeal.SCENARIO_PROPERTY_WILD_CASH_ACTION);
+    game.setScenario(PlayDealGame.SCENARIO_PROPERTY_WILD_CASH_ACTION);
 
     game.addPlayer();
     game.addPlayer();
@@ -107,13 +107,13 @@ describe("Requests", () => {
         });
         const player2TargetedBirthdayRequestId = p2BdayRequest.getId();
         const player2FirstNopeCard = player2Hand.findCard("NOPE");
-        const player2FirstNopeCardSelection = game
-            .makeCardSelection()
-            .addSelection(CardSelection.TYPE_ACTION, player2FirstNopeCard);
+        const player2FirstNopeSelectionContext = game
+            .makeSelectionContext()
+            .addSelection(SelectionContext.TYPE_ACTION, player2FirstNopeCard);
         game.contestRequest(
             player2Id,
             player2TargetedBirthdayRequestId,
-            player2FirstNopeCardSelection
+            player2FirstNopeSelectionContext
         );
 
         // should be contested
@@ -135,9 +135,9 @@ describe("Requests", () => {
             player1Id,
             p2NopeCounterRequest.getId(),
             game
-                .makeCardSelection()
+                .makeSelectionContext()
                 .addSelection(
-                    CardSelection.TYPE_ACTION,
+                    SelectionContext.TYPE_ACTION,
                     player1Hand.findCard("NOPE")
                 )
         );
@@ -159,9 +159,9 @@ describe("Requests", () => {
             player2Id,
             request2ndNopeId,
             game
-                .makeCardSelection()
+                .makeSelectionContext()
                 .addSelection(
-                    CardSelection.TYPE_ACTION,
+                    SelectionContext.TYPE_ACTION,
                     player2Hand.findCard("NOPE")
                 )
         );
@@ -227,8 +227,8 @@ describe("Requests", () => {
             player2Id,
             player2TargetedBirthdayRequestId,
             game
-                .makeCardSelection()
-                .addSelection(CardSelection.TYPE_BANK, player2Cash)
+                .makeSelectionContext()
+                .addSelection(SelectionContext.TYPE_BANK, player2Cash)
         );
 
         dumpRequests(game);

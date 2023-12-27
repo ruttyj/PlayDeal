@@ -2,7 +2,7 @@ const AutoIncRepo = require("../../base/AutoIncRepo");
 const RequestStack = require("./RequestStack");
 const Request = require("../../turn/request/Request");
 const RequestContest = require("../request/requestTypes/RequestContest");
-const CardSelection = require("../../card/CardSelection");
+const SelectionContext = require("../../card/SelectionContext");
 const Card = require("../../card/Card");
 
 module.exports = class RequestManager {
@@ -117,7 +117,7 @@ module.exports = class RequestManager {
         }
 
         const actionCards = cardSelection.getSelection(
-            CardSelection.TYPE_ACTION
+            SelectionContext.TYPE_ACTION
         );
 
         // Validate contest card
@@ -169,12 +169,7 @@ module.exports = class RequestManager {
                 originalRequest.comply(cardSelection);
                 break;
             case Request.TYPE_REQUEST_VALUE:
-                /*
-                const wealthTransfer = originalRequest.getWealthTransfer();
-                const transferToAuthor = wealthTransfer.getTransferDirection(
-                    WealthTransfer.DIRECTION_AUTHOR
-                );
-                */
+                originalRequest.comply(cardSelection);
                 break;
             default:
             // NOPE

@@ -151,9 +151,9 @@ module.exports = class Request extends Model {
     //                User Actions
 
     //===============================================
-    comply(cardSelection) {}
+    comply(selectionContext) {}
 
-    contest(cardSelection) {}
+    contest(selectionContext) {}
 
     //===============================================
 

@@ -1,6 +1,10 @@
 const Request = require("../Request");
+const SelectionContext = require("../../../card/SelectionContext");
 const WealthTransfer = require("../WealthTransfer");
 const Transfer = require("../Transfer");
+
+const { TAG_SUPERWILD_PROPERTY } = require("../../../card/Card");
+
 module.exports = class RequestWealthTransfer extends Request {
     constructor(game) {
         super(game);

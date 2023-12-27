@@ -32,6 +32,7 @@ module.exports = class RequestContest extends Request {
     comply(cardSelection) {
         const game = this.getGameRef();
         const requestManager = game.getRequestManager();
+
         this.accept();
     }
 
@@ -47,6 +48,7 @@ module.exports = class RequestContest extends Request {
         );
         targetRequest.decline();
         this.setClosed(true);
+
         super.accept();
     }
 

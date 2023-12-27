@@ -3,7 +3,7 @@ const CardManager = require("../src/card/CardManager");
 const TurnManager = require("../src/turn/TurnManager");
 const RandomNumberGen = require("../src/utils/RandomNumberGen");
 const CardContainer = require("../src/card/CardContainer");
-const CardSelection = require("../src/card/CardSelection");
+const SelectionContext = require("../src/card/SelectionContext");
 const Turn = require("../src/turn/Turn");
 const Card = require("../src/card/Card");
 const PropertySet = require("../src/card/PropertySet");
@@ -15,11 +15,11 @@ const Transfer = require("./turn/request/Transfer");
 /**
  * =====================================================
  *
- *                        PlayDeal
+ *                     PlayDealGame Game
  *
  * =====================================================
  */
-module.exports = class PlayDeal {
+module.exports = class PlayDealGame {
     static SCENARIO_CASH_ONLY = "cashOnly";
     static SCENARIO_PROPERTY_ONLY = "propertyOnly";
     static SCENARIO_PROPERTY_PLUS_WILD = "propertyPlusWild";
@@ -37,7 +37,7 @@ module.exports = class PlayDeal {
         this._activePile = new CardContainer(this._cardManager);
         this._discardPile = new CardContainer(this._cardManager);
 
-        this._scenario = PlayDeal.SCENARIO_DEFAULT;
+        this._scenario = PlayDealGame.SCENARIO_DEFAULT;
         this._minPlayerLimit = 2; // min players to start a game
         this._gameStartingCardCount = 5; // cards given to player at beginning of game
         this._turnStartingCardCount = 2; // number of cards to be collected on turn start
@@ -135,31 +135,31 @@ module.exports = class PlayDeal {
 
         switch (this._scenario) {
             // CASH
-            case PlayDeal.SCENARIO_CASH_ONLY:
+            case PlayDealGame.SCENARIO_CASH_ONLY:
                 cardLoadout = CardManager.SCENARIO_CASH_ONLY;
                 break;
 
             // PROPERTY + CASH
-            case PlayDeal.SCENARIO_PROPERTY_CASH:
+            case PlayDealGame.SCENARIO_PROPERTY_CASH:
                 cardLoadout = CardManager.SCENARIO_PROPERTY_CASH;
                 break;
 
             // PROPERTY
-            case PlayDeal.SCENARIO_PROPERTY_ONLY:
+            case PlayDealGame.SCENARIO_PROPERTY_ONLY:
                 cardLoadout = CardManager.SCENARIO_PROPERTY_ONLY;
                 break;
 
             // PROPERTY + WILD
-            case PlayDeal.SCENARIO_PROPERTY_PLUS_WILD:
+            case PlayDealGame.SCENARIO_PROPERTY_PLUS_WILD:
                 cardLoadout = CardManager.SCENARIO_PROPERTY_PLUS_WILD;
                 break;
 
             // PROPERTY + WILD + CASH + ACTION
-            case PlayDeal.SCENARIO_PROPERTY_WILD_CASH_ACTION:
+            case PlayDealGame.SCENARIO_PROPERTY_WILD_CASH_ACTION:
                 cardLoadout = CardManager.SCENARIO_PROPERTY_WILD_CASH_ACTION;
                 break;
 
-            case PlayDeal.SCENARIO_DEFAULT:
+            case PlayDealGame.SCENARIO_DEFAULT:
             default:
                 cardLoadout = CardManager.SCENARIO_DEFAULT;
         }
@@ -180,11 +180,11 @@ module.exports = class PlayDeal {
         return this._cardManager.getPropertySet(propertySetId);
     }
 
-    makeCardSelection(selectionParams = {}) {
-        const cardSelection = new CardSelection(this);
+    makeSelectionContext(selectionParams = {}) {
+        const cardSelection = new SelectionContext(this);
 
         if (typeof selectionParams === "Object") {
-            CardSelection.getAllTypes().forEach((cardType) => {
+            SelectionContext.getAllCardTypes().forEach((cardType) => {
                 if (selectionParams[cardType]) {
                     cardSelection.addSelection(
                         cardType,
